@@ -991,6 +991,7 @@ const shownProviders = priceTabbedProviders();
         </div>
 
         <div
+        loading="lazy"
           style={{
             fontFamily: BODY_FONT,
             fontSize: 13,
@@ -1018,7 +1019,7 @@ const shownProviders = priceTabbedProviders();
                 <div style={{ width: "100%", aspectRatio: "9/16", borderRadius: 10, overflow: "hidden", border: `2px solid ${C.glassBorder}`, background: C.iconBg }}>
                   {c.photo && <img src={c.photo} alt={c.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />}
                 </div>
-                <div style={{ fontFamily: BODY_FONT, fontSize: 11, fontWeight: 600, color: C.text, marginTop: 6 }}>{c.name}</div>
+                <div loading="lazy" style={{ fontFamily: BODY_FONT, fontSize: 11, fontWeight: 600, color: C.text, marginTop: 6 }}>{c.name}</div>
                 <div style={{ fontFamily: BODY_FONT, fontSize: 9, color: C.muted, marginTop: 1 }}>{c.role}</div>
               </div>
             ))}

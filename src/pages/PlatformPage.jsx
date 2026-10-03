@@ -27,6 +27,16 @@ const RATING_TO_VOTE_AVG = {
   "6+": 6,
 };
 
+function getOttStart() {
+  const date = new Date();
+  date.setDate(date.getDate() - 59);
+  return date.toISOString().slice(0, 10);
+}
+
+function getOttEnd() {
+  return new Date().toISOString().slice(0, 10);
+}
+
 export default function PlatformPage({
   C,
   wishlist,
@@ -77,10 +87,19 @@ export default function PlatformPage({
   const [genreMap, setGenreMap] = useState({});
   const [genreNameToId, setGenreNameToId] = useState({});
 
-  const [latest, setLatest] = useState([]);
-  const [topMovies, setTopMovies] = useState([]);
-  const [topSeries, setTopSeries] = useState([]);
-  const [topRated, setTopRated] = useState([]);
+  const [latestMovies, setLatestMovies] = useState([]);
+const [latestTV, setLatestTV] = useState([]);
+
+const [trendingMovies, setTrendingMovies] = useState([]);
+const [trendingTV, setTrendingTV] = useState([]);
+
+const [topRatedMovies, setTopRatedMovies] = useState([]);
+const [topRatedTV, setTopRatedTV] = useState([]);
+
+const [popularMovies, setPopularMovies] = useState([]);
+const [popularTV, setPopularTV] = useState([]);
+
+
 
   const [loading, setLoading] = useState(true);
   const [platformAvailable, setPlatformAvailable] = useState(null);
@@ -509,117 +528,224 @@ useEffect(() => {
   // NORMAL PLATFORM ROWS
   // ---------------------------------------------------------
 
-  useEffect(() => {
-    let cancelled = false;
+ useEffect(() => {
+  let cancelled = false;
 
-    if (platformAvailable !== true) {
-      setLoading(platformAvailable === null);
-
-      return () => {
-        cancelled = true;
-      };
-    }
-
-    setLoading(true);
-
-    Promise.all([
-      discover("movie", {
-        providerId,
-        watchRegion: toIsoRegion(platformCountry),
-        sortBy: "primary_release_date.desc",
-      }),
-
-      discover("movie", {
-        providerId,
-        watchRegion: toIsoRegion(platformCountry),
-        sortBy: "vote_average.desc",
-      }),
-
-      discover("tv", {
-        providerId,
-        watchRegion: toIsoRegion(platformCountry),
-        sortBy: "vote_average.desc",
-      }),
-
-      getGenreMap(),
-    ])
-      .then(
-        ([
-          latestRes,
-          topMoviesRes,
-          topSeriesRes,
-          gMap,
-        ]) => {
-          if (cancelled) return;
-
-          const l = adaptListResponse(
-            latestRes,
-            gMap
-          ).map((m) => ({
-            ...m,
-            tmdbMediaType: "movie",
-            type: "movie",
-          }));
-
-          const tm = adaptListResponse(
-            topMoviesRes,
-            gMap
-          ).map((m) => ({
-            ...m,
-            tmdbMediaType: "movie",
-            type: "movie",
-          }));
-
-          const ts = adaptListResponse(
-            topSeriesRes,
-            gMap
-          ).map((m) => ({
-            ...m,
-            tmdbMediaType: "tv",
-            type: "tv",
-          }));
-
-          const combinedTopRated = [
-            ...tm,
-            ...ts,
-          ]
-            .sort((a, b) => b.rating - a.rating)
-            .slice(0, 10);
-
-          registerItems([
-            ...l,
-            ...tm,
-            ...ts,
-          ]);
-
-          setLatest(l);
-          setTopMovies(tm.slice(0, 10));
-          setTopSeries(ts.slice(0, 10));
-          setTopRated(combinedTopRated);
-        }
-      )
-      .catch(() => {
-        if (cancelled) return;
-
-        setLatest([]);
-        setTopMovies([]);
-        setTopSeries([]);
-        setTopRated([]);
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      });
+  if (platformAvailable !== true) {
+    setLoading(platformAvailable === null);
 
     return () => {
       cancelled = true;
     };
-  }, [
-    providerId,
-    platformCountry,
-    platformAvailable,
-  ]);
+  }
+
+  setLoading(true);
+
+  const region = toIsoRegion(platformCountry);
+
+  Promise.all([
+    // Latest OTT movies
+    discover("movie", {
+      providerId,
+      watchRegion: region,
+      region,
+      watchMonetizationTypes: "flatrate|free|ads",
+      releaseDateFrom: getOttStart(),
+      releaseDateTo: getOttEnd(),
+      withReleaseType: 4,
+      sortBy: "release_date.desc",
+    }),
+
+    // Latest OTT TV
+    discover("tv", {
+      providerId,
+      watchRegion: region,
+      watchMonetizationTypes: "flatrate|free|ads",
+      dateFrom: getOttStart(),
+      dateTo: getOttEnd(),
+      sortBy: "first_air_date.desc",
+    }),
+
+    // Trending movies
+    discover("movie", {
+      providerId,
+      watchRegion: region,
+      watchMonetizationTypes: "flatrate|free|ads",
+      sortBy: "popularity.desc",
+    }),
+
+    // Trending TV
+    discover("tv", {
+      providerId,
+      watchRegion: region,
+      watchMonetizationTypes: "flatrate|free|ads",
+      sortBy: "popularity.desc",
+    }),
+
+    // Top IMDb rated movies
+    discover("movie", {
+      providerId,
+      watchRegion: region,
+      sortBy: "vote_average.desc",
+    }),
+
+    // Top IMDb rated TV
+    discover("tv", {
+      providerId,
+      watchRegion: region,
+      sortBy: "vote_average.desc",
+    }),
+
+    // Most popular movies
+    discover("movie", {
+      providerId,
+      watchRegion: region,
+      watchMonetizationTypes: "flatrate|free|ads",
+      sortBy: "popularity.desc",
+    }),
+
+    // Most popular TV
+    discover("tv", {
+      providerId,
+      watchRegion: region,
+      watchMonetizationTypes: "flatrate|free|ads",
+      sortBy: "popularity.desc",
+    }),
+
+    getGenreMap(),
+  ])
+    .then(
+      ([
+        latestMoviesRes,
+        latestTVRes,
+        trendingMoviesRes,
+        trendingTVRes,
+        topRatedMoviesRes,
+        topRatedTVRes,
+        popularMoviesRes,
+        popularTVRes,
+        gMap,
+      ]) => {
+        if (cancelled) return;
+
+        const latestMovies = adaptListResponse(
+          latestMoviesRes,
+          gMap
+        ).map((m) => ({
+          ...m,
+          tmdbMediaType: "movie",
+          type: "movie",
+        }));
+
+        const latestTV = adaptListResponse(
+          latestTVRes,
+          gMap
+        ).map((m) => ({
+          ...m,
+          tmdbMediaType: "tv",
+          type: "tv",
+        }));
+
+        const trendingMovies = adaptListResponse(
+          trendingMoviesRes,
+          gMap
+        ).map((m) => ({
+          ...m,
+          tmdbMediaType: "movie",
+          type: "movie",
+        }));
+
+        const trendingTV = adaptListResponse(
+          trendingTVRes,
+          gMap
+        ).map((m) => ({
+          ...m,
+          tmdbMediaType: "tv",
+          type: "tv",
+        }));
+
+        const topRatedMovies = adaptListResponse(
+          topRatedMoviesRes,
+          gMap
+        ).map((m) => ({
+          ...m,
+          tmdbMediaType: "movie",
+          type: "movie",
+        }));
+
+        const topRatedTV = adaptListResponse(
+          topRatedTVRes,
+          gMap
+        ).map((m) => ({
+          ...m,
+          tmdbMediaType: "tv",
+          type: "tv",
+        }));
+
+        const popularMovies = adaptListResponse(
+          popularMoviesRes,
+          gMap
+        ).map((m) => ({
+          ...m,
+          tmdbMediaType: "movie",
+          type: "movie",
+        }));
+
+        const popularTV = adaptListResponse(
+          popularTVRes,
+          gMap
+        ).map((m) => ({
+          ...m,
+          tmdbMediaType: "tv",
+          type: "tv",
+        }));
+
+        registerItems([
+          ...latestMovies,
+          ...latestTV,
+          ...trendingMovies,
+          ...trendingTV,
+          ...topRatedMovies,
+          ...topRatedTV,
+          ...popularMovies,
+          ...popularTV,
+        ]);
+
+        setLatestMovies(latestMovies);
+        setLatestTV(latestTV);
+
+        setTrendingMovies(trendingMovies.slice(0, 10));
+        setTrendingTV(trendingTV.slice(0, 10));
+
+        setTopRatedMovies(topRatedMovies.slice(0, 20));
+        setTopRatedTV(topRatedTV.slice(0, 20));
+
+        setPopularMovies(popularMovies.slice(0, 20));
+        setPopularTV(popularTV.slice(0, 20));
+      }
+    )
+    .catch(() => {
+      if (cancelled) return;
+
+      setLatestMovies([]);
+      setLatestTV([]);
+      setTrendingMovies([]);
+      setTrendingTV([]);
+      setTopRatedMovies([]);
+      setTopRatedTV([]);
+      setPopularMovies([]);
+      setPopularTV([]);
+    })
+    .finally(() => {
+      if (!cancelled) {
+        setLoading(false);
+      }
+    });
+
+  return () => {
+    cancelled = true;
+  };
+}, [providerId, platformCountry, platformAvailable]);
 
   const wishlistCheck = (m) =>
     wishlist.some(
@@ -866,96 +992,160 @@ useEffect(() => {
       ) : (
         <div>
           <Row
-            title="Latest releases"
-            items={latest}
+            title="Latest Movies"
+            items={latestMovies}
+            loading={loading}
             C={C}
             wishlist={wishlist}
-            onToggleWishlist={
-              onToggleWishlist
+            onToggleWishlist={onToggleWishlist}
+            ownedProviderIds={ownedProviderIds}
+            browsingCountry={platformCountry}
+            onSeeAll={() =>
+              navigate("/see-all", {
+              state: {
+                source: "platform-latest-movies",
+                title: `${providerName} — Latest Movie on OTT`,
+                providerId,
+                providerName,
+                watchRegion: toIsoRegion(platformCountry),
+                browsingCountry: platformCountry,
+              },
+            })
             }
-            ownedProviderIds={
-              ownedProviderIds
-            }
-            browsingCountry={
-              platformCountry
-            }
+          />
+
+          <Row
+            title="Latest TV shows & Web series"
+            items={latestTV}
+            loading={loading}
+            C={C}
+            wishlist={wishlist}
+            onToggleWishlist={onToggleWishlist}
+            ownedProviderIds={ownedProviderIds}
+            browsingCountry={platformCountry}
             onSeeAll={() =>
               navigate("/see-all", {
                 state: {
-                  items: latest,
-                  title: `${providerName} — Latest releases`,
+                  source: "platform-latest-tv",
+                  title: `${providerName} — Latest TV shows on OTT`,
+                  providerId,
+                  providerName,
+                  watchRegion: toIsoRegion(platformCountry),
+                  browsingCountry: platformCountry,
                 },
               })
             }
           />
 
           <Row
-            title="Top 10 movies"
-            items={topMovies}
+            title="TOP 10 Trending movies this week"
+            items={trendingMovies}
+            loading={loading}
             C={C}
             wishlist={wishlist}
-            onToggleWishlist={
-              onToggleWishlist
-            }
-            ownedProviderIds={
-              ownedProviderIds
-            }
-            browsingCountry={
-              platformCountry
-            }
+            onToggleWishlist={onToggleWishlist}
+            ownedProviderIds={ownedProviderIds}
+            browsingCountry={platformCountry}
+          />
+
+          <Row
+            title="TOP 10 Trending TV shows & series this week"
+            items={trendingTV}
+            loading={loading}
+            C={C}
+            wishlist={wishlist}
+            onToggleWishlist={onToggleWishlist}
+            ownedProviderIds={ownedProviderIds}
+            browsingCountry={platformCountry}
+          />
+
+          <Row
+            title="Top TMDb rated movies"
+            items={topRatedMovies}
+            loading={loading}
+            C={C}
+            wishlist={wishlist}
+            onToggleWishlist={onToggleWishlist}
+            ownedProviderIds={ownedProviderIds}
+            browsingCountry={platformCountry}
             onSeeAll={() =>
               navigate("/see-all", {
                 state: {
-                  items: topMovies,
-                  title: `${providerName} — Top 10 movies`,
+                  source: "platform-top-imdb-movies",
+                  title: `${providerName} — Top TMDb rated movies`,
+                  providerId,
+                  providerName,
+                  watchRegion: toIsoRegion(platformCountry),
+                  browsingCountry: platformCountry,
                 },
               })
             }
           />
 
           <Row
-            title="Top 10 series & TV shows"
-            items={topSeries}
+            title="Top TMDb Rated TV shows & series"
+            items={topRatedTV}
+            loading={loading}
             C={C}
             wishlist={wishlist}
-            onToggleWishlist={
-              onToggleWishlist
-            }
-            ownedProviderIds={
-              ownedProviderIds
-            }
-            browsingCountry={
-              platformCountry
-            }
+            onToggleWishlist={onToggleWishlist}
+            ownedProviderIds={ownedProviderIds}
+            browsingCountry={platformCountry}
             onSeeAll={() =>
               navigate("/see-all", {
                 state: {
-                  items: topSeries,
-                  title: `${providerName} — Top 10 series & TV shows`,
+                  source: "platform-top-imdb-tv",
+                  title: `${providerName} — Top TMDb Rated TV shows & series`,
+                  providerId,
+                  providerName,
+                  watchRegion: toIsoRegion(platformCountry),
+                  browsingCountry: platformCountry,
                 },
               })
             }
           />
 
           <Row
-            title="Top rated movies and series"
-            items={topRated}
+            title="Most Popular TV Shows & Series"
+            items={popularTV}
+            loading={loading}
             C={C}
             wishlist={wishlist}
-            onToggleWishlist={
-              onToggleWishlist
-            }
-            ownedProviderIds={
-              ownedProviderIds
-            }
-            browsingCountry={
-              platformCountry
-            }
+            onToggleWishlist={onToggleWishlist}
+            ownedProviderIds={ownedProviderIds}
+            browsingCountry={platformCountry}
             onSeeAll={() =>
               navigate("/see-all", {
                 state: {
-                  items: topRated,
-                  title: `${providerName} — Top rated`,
+                  source: "platform-most-popular-tv",
+                  title: `${providerName} — Most Popular TV Shows & Series`,
+                  providerId,
+                  providerName,
+                  watchRegion: toIsoRegion(platformCountry),
+                  browsingCountry: platformCountry,
+                },
+              })
+            }
+          />
+
+          <Row
+            title="Most Popular Movies"
+            items={popularMovies}
+            loading={loading}
+            C={C}
+            wishlist={wishlist}
+            onToggleWishlist={onToggleWishlist}
+            ownedProviderIds={ownedProviderIds}
+            browsingCountry={platformCountry}
+            onSeeAll={() =>
+              navigate("/see-all", {
+                state: {
+                  source: "platform-most-popular-movies",
+                  title: `${providerName} — Most Popular Movies`,
+                  providerId,
+                  providerName,
+                  watchRegion: toIsoRegion(platformCountry),
+                  browsingCountry: platformCountry,
                 },
               })
             }
@@ -977,6 +1167,21 @@ useEffect(() => {
               }
               ownedProviderIds={
                 ownedProviderIds
+              }
+              onSeeAll={(genreId, genreName, activeCat) =>
+                navigate("/see-all", {
+                  state: {
+                    source: "genre",
+                    genreId,
+                    genreName,
+                    activeCat,
+                    providerId,
+                    providerName,
+                    watchRegion: toIsoRegion(platformCountry),
+                    browsingCountry: platformCountry,
+                    title: `${providerName} — ${genreName}`,
+                  },
+                })
               }
             />
           ))}

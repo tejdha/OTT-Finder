@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { data, useLocation, useNavigate } from "react-router-dom";
 import { DISPLAY_FONT } from "../styles/theme";
 import { PosterCard } from "../components/Cards";
 import {
@@ -35,6 +35,69 @@ function getOttEnd() {
 }
 
 const SOURCE_FETCHERS = {
+
+  // platform page seeall button data
+
+"platform-latest-movies": (page, { providerId, watchRegion }) =>
+  discover("movie", {
+    providerId,
+    watchRegion,
+    region: watchRegion,
+    watchMonetizationTypes: "flatrate|free|ads",
+    releaseDateFrom: getOttStart(),
+    releaseDateTo: getOttEnd(),
+    withReleaseType: 4,
+    sortBy: "release_date.desc",
+    page,
+  }),
+
+"platform-latest-tv": (page, { providerId, watchRegion }) =>
+  discover("tv", {
+    providerId,
+    watchRegion,
+    watchMonetizationTypes: "flatrate|free|ads",
+    dateFrom: getOttStart(),
+    dateTo: getOttEnd(),
+    sortBy: "first_air_date.desc",
+    page,
+  }),
+
+"platform-top-imdb-movies": (page, { providerId, watchRegion }) =>
+  discover("movie", {
+    providerId,
+    watchRegion,
+    sortBy: "vote_average.desc",
+    page,
+  }),
+
+"platform-top-imdb-tv": (page, { providerId, watchRegion }) =>
+  discover("tv", {
+    providerId,
+    watchRegion,
+    sortBy: "vote_average.desc",
+    page,
+  }),
+
+"platform-most-popular-movies": (page, { providerId, watchRegion }) =>
+  discover("movie", {
+    providerId,
+    watchRegion,
+    watchMonetizationTypes: "flatrate|free|ads",
+    sortBy: "popularity.desc",
+    page,
+  }),
+
+"platform-most-popular-tv": (page, { providerId, watchRegion }) =>
+  discover("tv", {
+    providerId,
+    watchRegion,
+    watchMonetizationTypes: "flatrate|free|ads",
+    sortBy: "popularity.desc",
+    page,
+  }),
+
+// home page seeall button data
+
 //   "latest-this-week": async (page, { watchRegion }) => {
 //   const [movies, tv] = await Promise.all([
 //     discover("movie", {
@@ -183,12 +246,23 @@ export default function SeeAllPage({
   watchRegion,
   activeCat,
   browsingCountry,
+  seeAllPage,
 } = location.state || {};
 
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(seeAllPage || 1);
   const [totalPages, setTotalPages] = useState(1);
+
+  useEffect(() => {
+  navigate(location.pathname, {
+    replace: true,
+    state: {
+      ...location.state,
+      seeAllPage: page,
+    },
+  });
+}, [page]);
 
   useEffect(() => {
   let cancelled = false;
@@ -250,7 +324,22 @@ export default function SeeAllPage({
   return () => {
     cancelled = true;
   };
-}, [source, page, watchRegion]);
+}, [source, page, watchRegion, providerId, ]);
+
+useEffect(() => {
+  if (loading) return;
+
+  const savedPosition = sessionStorage.getItem(
+    "ott-seeall-scroll-position"
+  );
+
+  if (savedPosition !== null) {
+    requestAnimationFrame(() => {
+      window.scrollTo(0, Number(savedPosition));
+      sessionStorage.removeItem("ott-seeall-scroll-position");
+    });
+  }
+}, [loading]);
 
   return (
     <div>
@@ -307,6 +396,7 @@ export default function SeeAllPage({
               onToggleWishlist={onToggleWishlist}
               ownedProviderIds={ownedProviderIds}
               browsingCountry={browsingCountry}
+              seeAllPage={page}
             />
           ))}
         </div>

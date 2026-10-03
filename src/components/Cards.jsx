@@ -5,7 +5,7 @@ import { glassStyle, DISPLAY_FONT, BODY_FONT } from "../styles/theme";
 import { Sheen } from "./Primitives";
 
 // movie shape now comes from src/api/adapters.js — see that file for fields.
-export function PosterCard({ movie, C, wishlisted, onToggleWishlist, ownedProviderIds = [], showProviders = false, browsingCountry=null, }) {
+export function PosterCard({ movie, C, wishlisted, onToggleWishlist, ownedProviderIds = [], showProviders = false, browsingCountry=null, seeAllPage = null, }) {
   const navigate = useNavigate();
   const mediaType = movie.tmdbMediaType || movie.type || "movie";
   
@@ -29,10 +29,18 @@ export function PosterCard({ movie, C, wishlisted, onToggleWishlist, ownedProvid
       "ott-home-scroll-position",
       String(resultsPanel.scrollTop)
     );
-  }
+  } else if (seeAllPage) {
+  sessionStorage.setItem(
+    "ott-seeall-scroll-position",
+    String(window.scrollY)
+  );
+}
 
     navigate(`/title/${mediaType}/${movie.id}`, {
-      state: { browsingCountry },
+      state: { 
+        browsingCountry,
+        seeAllPage,
+       },
     });
   }}
   style={{
@@ -43,7 +51,7 @@ export function PosterCard({ movie, C, wishlisted, onToggleWishlist, ownedProvid
       <Sheen C={C} />
       <div style={{ position: "relative", overflow: "hidden", borderRadius: 12, aspectRatio: "2/3" }}>
         {movie.poster ? (
-          <img src={movie.poster} alt={movie.title} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+          <img src={movie.poster} alt={movie.title} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
         ) : (
           <div style={{ width: "100%", height: "100%", background: C.iconBg, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: BODY_FONT, fontSize: 11, color: C.muted, textAlign: "center", padding: 8 }}>
             No poster
@@ -81,7 +89,7 @@ export function ProviderIcon({ provider, C, size = 36 }) {
   return (
     <div style={{ width: size, height: size, borderRadius: size * 0.28, background: C.iconBg, border: `1px solid ${C.iconBorder}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, overflow: "hidden" }}>
       {provider.logo ? (
-        <img src={provider.logo} alt={provider.name} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+        <img src={provider.logo} alt={provider.name} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
       ) : (
         <span style={{ fontFamily: DISPLAY_FONT, fontWeight: 800, fontSize: size * 0.42, color: C.text }}>{provider.name?.charAt(0)}</span>
       )}

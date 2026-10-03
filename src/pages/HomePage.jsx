@@ -1330,7 +1330,7 @@ const genreIds = genreIdsArray.join(",");
         />
 
         <Row
-          title="Top IMDb rated movies"
+          title="Top TMDb rated movies"
           items={topImdbRated}
           loading={rowsLoading}
           C={C}
@@ -1342,7 +1342,7 @@ const genreIds = genreIdsArray.join(",");
             navigate("/see-all", {
               state: {
                 source : "top-imdb-rated",
-                title: "Top IMDb rated",
+                title: "Top TMDb rated",
                 watchRegion: toIsoRegion(homeCountry),
                 browsingCountry: homeCountry,
               },
@@ -1351,7 +1351,7 @@ const genreIds = genreIdsArray.join(",");
         />
 
         <Row 
-        title="Top IMDb Rated TV shows & series"
+        title="Top TMDb Rated TV shows & series"
         items={topImdbRatedTv}
         loading={rowsLoading}
         C={C}
@@ -1363,7 +1363,7 @@ const genreIds = genreIdsArray.join(",");
           navigate("/see-all",{
             state: {
               source: "top-imdb-rated-tv",
-              title: "Top IMDb rated TV shows & series",
+              title: "Top TMDb rated TV shows & series",
               watchRegion: toIsoRegion(homeCountry),
               browsingCountry: homeCountry,
             }

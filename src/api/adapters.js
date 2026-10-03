@@ -85,7 +85,7 @@ export function adaptDetails(details, mediaType, watchRegion = "IN") {
 
     genres: (details.genres || []).map((g) => g.name),
 
-    poster: posterUrl(details.poster_path),
+    poster: posterUrl(details.poster_path, "w500"),
     backdrop: backdropUrl(details.backdrop_path, "w1280"),
     overview: details.overview,
 
