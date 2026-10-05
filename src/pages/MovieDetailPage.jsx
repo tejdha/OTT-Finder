@@ -118,8 +118,27 @@ export default function MovieDetailPage({ C, wishlist, onToggleWishlist, ownedPr
   const [related, setRelated] = useState([]);
   const [priceTab, setPriceTab] = useState("all");
   const [relatedVisible, setRelatedVisible] = useState(10);
+  
+  const [isSmallScreen, setIsSmallScreen] = useState(
+  () => window.innerWidth < 900
+);
 
-  const [episodeRuntime, setEpisodeRuntime] = useState(null);
+useEffect(() => {
+  const handleResize = () => {
+    setIsSmallScreen(window.innerWidth < 900);
+  };
+
+  window.addEventListener("resize", handleResize);
+
+  return () => {
+    window.removeEventListener("resize", handleResize);
+  };
+}, []);
+
+const [episodeRuntime, setEpisodeRuntime] = useState(null);
+
+
+
   const [dubbedLanguages, setDubbedLanguages] = useState([]);
   const [streamingOptions, setStreamingOptions] = useState([]);
 
@@ -548,7 +567,7 @@ const shownProviders = priceTabbedProviders();
       </div>
 
       {/* Information */}
-<div style={{ marginTop: 28, textAlign: "left" }}>
+<div style={{ marginTop: 28 }}>
   <h2
     style={{
       fontFamily: DISPLAY_FONT,
@@ -564,447 +583,1607 @@ const shownProviders = priceTabbedProviders();
   <div
     style={{
       ...glassStyle(C),
-      padding: "18px 20px",
       borderRadius: 16,
+      padding: isSmallScreen ? 20 : 16,
+      boxSizing: "border-box",
+      width: "100%",
     }}
   >
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-        gap: "14px 28px",
-      }}
-    >
-      {/* Title */}
-      <div>
-        <div
-          style={{
-            fontFamily: BODY_FONT,
-            fontSize: 11,
-            color: C.muted,
-            marginBottom: 3,
-          }}
-        >
-          Title
-        </div>
 
-        <div
-          style={{
-            fontFamily: BODY_FONT,
-            fontSize: 13,
-            color: C.text,
-            fontWeight: 600,
-          }}
-        >
-          {movie.title || "—"}
-        </div>
-      </div>
+    {/* =====================================================
+        MOVIE INFORMATION
+        ===================================================== */}
+    {mediaType === "movie" && (
+      <>
+        {/* =========================
+            MOVIE — DESKTOP
+        ========================== */}
+        {!isSmallScreen && (
+          <>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                gap: 12,
+              }}
+            >
 
-      {/* Type */}
-      <div>
-        <div
-          style={{
-            fontFamily: BODY_FONT,
-            fontSize: 11,
-            color: C.muted,
-            marginBottom: 3,
-          }}
-        >
-          Type
-        </div>
+              {/* CARD 1 — OVERVIEW */}
+              <div
+                style={{
+                  ...glassStyle(C),
+                  borderRadius: 14,
+                  padding: "14px 16px",
+                  minWidth: 0,
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 13,
+                    color: C.muted,
+                    marginBottom: 10,
+                  }}
+                >
+                  Overview
+                </div>
 
-        <div
-          style={{
-            fontFamily: BODY_FONT,
-            fontSize: 13,
-            color: C.text,
-            fontWeight: 600,
-          }}
-        >
-          {mediaType === "tv" ? "TV Show / Series" : "Movie"}
-        </div>
-      </div>
+                {[
+                  ["Title", movie.title || "—"],
+                  ["Duration", movie.runtime || "—"],
+                  ["Original language", originalLanguage || "—"],
+                  [
+                    "TMDB rating",
+                    movie.rating ? `${movie.rating}/10` : "—",
+                  ],
+                ].map(([label, value], index, arr) => (
+                  <div
+                    key={label}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 16,
+                      padding: "8px 0",
+                      borderBottom:
+                        index < arr.length - 1
+                          ? `1px solid ${C.glassBorder}`
+                          : "none",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: BODY_FONT,
+                        fontSize: 12,
+                        color: C.muted,
+                      }}
+                    >
+                      {label}
+                    </span>
 
-      {/* Duration / Seasons */}
-      <div>
-        <div
-          style={{
-            fontFamily: BODY_FONT,
-            fontSize: 11,
-            color: C.muted,
-            marginBottom: 3,
-          }}
-        >
-          {mediaType === "tv" ? "Seasons" : "Duration"}
-        </div>
+                    <span
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: label === "TMDB rating" ? 5 : 0,
+                        fontFamily: BODY_FONT,
+                        fontSize: 13,
+                        color:
+                          label === "TMDB rating" && movie.rating
+                            ? "#F5B942"
+                            : C.text,
+                        fontWeight: 600,
+                        textAlign: "right",
+                        overflowWrap: "anywhere",
+                      }}
+                    >
+                      {label === "TMDB rating" && movie.rating && (
+                        <StarIcon
+                          size={14}
+                          fill="#F5B942"
+                          color="#F5B942"
+                        />
+                      )}
 
-        <div
-          style={{
-            fontFamily: BODY_FONT,
-            fontSize: 13,
-            color: C.text,
-            fontWeight: 600,
-          }}
-        >
-          {mediaType === "tv"
-            ? `${movie.seasons || 0} ${
-                movie.seasons === 1 ? "season" : "seasons"
-              }`
-            : movie.runtime || "—"}
-        </div>
-      </div>
+                      {value}
+                    </span>
+                  </div>
+                ))}
+              </div>
 
-      {/* Episodes — TV only */}
-      {mediaType === "tv" && (
-        <div>
-          <div
-            style={{
-              fontFamily: BODY_FONT,
-              fontSize: 11,
-              color: C.muted,
-              marginBottom: 3,
-            }}
-          >
-            Episodes
-          </div>
+              {/* CARD 2 — RELEASE & LANGUAGE */}
+              <div
+                style={{
+                  ...glassStyle(C),
+                  borderRadius: 14,
+                  padding: "14px 16px",
+                  minWidth: 0,
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 13,
+                    color: C.muted,
+                    marginBottom: 10,
+                  }}
+                >
+                  Release and language
+                </div>
 
-          <div
-            style={{
-              fontFamily: BODY_FONT,
-              fontSize: 13,
-              color: C.text,
-              fontWeight: 600,
-            }}
-          >
-            {movie.episodes || "—"}
-          </div>
-        </div>
-      )}
+                {[
+                  ["Type", "Movie"],
+                  ["Release date", movie.releaseDate || "—"],
+                  [
+                    "Dubbed language",
+                    dubbedLanguages.length
+                      ? dubbedLanguages.join(", ")
+                      : "—",
+                  ],
+                ].map(([label, value], index, arr) => (
+                  <div
+                    key={label}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 16,
+                      padding: "8px 0",
+                      borderBottom:
+                        index < arr.length - 1
+                          ? `1px solid ${C.glassBorder}`
+                          : "none",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: BODY_FONT,
+                        fontSize: 12,
+                        color: C.muted,
+                      }}
+                    >
+                      {label}
+                    </span>
 
-      {/* Episode Duration — TV only */}
-      {mediaType === "tv" && (
-        <div>
-          <div
-            style={{
-              fontFamily: BODY_FONT,
-              fontSize: 11,
-              color: C.muted,
-              marginBottom: 3,
-            }}
-          >
-            Episode Duration
-          </div>
+                    <span
+                      style={{
+                        fontFamily: BODY_FONT,
+                        fontSize: 13,
+                        color: C.text,
+                        fontWeight: 600,
+                        textAlign: "right",
+                        overflowWrap: "anywhere",
+                      }}
+                    >
+                      {value}
+                    </span>
+                  </div>
+                ))}
+              </div>
 
-          <div
-            style={{
-              fontFamily: BODY_FONT,
-              fontSize: 13,
-              color: C.text,
-              fontWeight: 600,
-            }}
-          >
-            {episodeRuntime
-              ? `${episodeRuntime} min`
-              : "—"}
-          </div>
-        </div>
-      )}
+              {/* CARD 3 — CREDITS */}
+              <div
+                style={{
+                  ...glassStyle(C),
+                  borderRadius: 14,
+                  padding: "14px 16px",
+                  minWidth: 0,
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 13,
+                    color: C.muted,
+                    marginBottom: 10,
+                  }}
+                >
+                  Credits
+                </div>
 
-      {/* Last Air Date — TV only */}
-{mediaType === "tv" && (
-  <div>
-    <div
-      style={{
-        fontFamily: BODY_FONT,
-        fontSize: 11,
-        color: C.muted,
-        marginBottom: 3,
-      }}
-    >
-      Last Air Date
-    </div>
+                {[
+                  [
+                    "Director",
+                    movie.director?.length
+                      ? movie.director.join(", ")
+                      : "—",
+                  ],
+                  [
+                    "Music",
+                    movie.music?.length
+                      ? movie.music.join(", ")
+                      : "—",
+                  ],
+                  [
+                    "Country",
+                    movie.originCountries?.length
+                      ? movie.originCountries.join(", ")
+                      : "—",
+                  ],
+                ].map(([label, value], index, arr) => (
+                  <div
+                    key={label}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 16,
+                      padding: "8px 0",
+                      borderBottom:
+                        index < arr.length - 1
+                          ? `1px solid ${C.glassBorder}`
+                          : "none",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: BODY_FONT,
+                        fontSize: 12,
+                        color: C.muted,
+                      }}
+                    >
+                      {label}
+                    </span>
 
-    <div
-      style={{
-        fontFamily: BODY_FONT,
-        fontSize: 13,
-        color: C.text,
-        fontWeight: 600,
-      }}
-    >
-      {movie.lastAirDate || "—"}
-    </div>
-  </div>
-)}
+                    <span
+                      style={{
+                        fontFamily: BODY_FONT,
+                        fontSize: 13,
+                        color: C.text,
+                        fontWeight: 600,
+                        textAlign: "right",
+                        overflowWrap: "anywhere",
+                      }}
+                    >
+                      {value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-      {/* Original Language */}
-      <div>
-        <div
-          style={{
-            fontFamily: BODY_FONT,
-            fontSize: 11,
-            color: C.muted,
-            marginBottom: 3,
-          }}
-        >
-          Original Language
-        </div>
+            {/* GENRE + CAST */}
+            <div
+              style={{
+                ...glassStyle(C),
+                borderRadius: 14,
+                padding: "14px 16px",
+                marginTop: 12,
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: BODY_FONT,
+                  fontSize: 12,
+                  color: C.muted,
+                  marginBottom: 7,
+                }}
+              >
+                Genre
+              </div>
 
-        <div
-          style={{
-            fontFamily: BODY_FONT,
-            fontSize: 13,
-            color: C.text,
-            fontWeight: 600,
-          }}
-        >
-          {originalLanguage}
-        </div>
-      </div>
+              <div
+                style={{
+                  fontFamily: BODY_FONT,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: C.text,
+                  lineHeight: 1.7,
+                }}
+              >
+                {movie.genres?.length
+                  ? movie.genres.join(", ")
+                  : "—"}
+              </div>
 
-      <div>
-  <div
-    style={{
-      fontSize: 12,
-      color: "rgba(255,255,255,0.55)",
-      marginBottom: 4,
-    }}
-  >
-    Dubbed Languages
-  </div>
+              <div
+                style={{
+                  fontFamily: BODY_FONT,
+                  fontSize: 12,
+                  color: C.muted,
+                  marginTop: 14,
+                  marginBottom: 7,
+                }}
+              >
+                Cast
+              </div>
 
-  <div
-    style={{
-      fontFamily: BODY_FONT,
-      fontSize: 14,
-      color: "rgba(255,255,255,0.9)",
-    }}
-  >
-    {dubbedLanguages.length
-      ? dubbedLanguages.join(" - ")
-      : "—"}
-  </div>
-</div>
+              <div
+                style={{
+                  fontFamily: BODY_FONT,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: C.text,
+                  lineHeight: 1.7,
+                }}
+              >
+                {movie.cast?.length
+                  ? movie.cast.map((person) => person.name).join(", ")
+                  : "—"}
+              </div>
+            </div>
+          </>
+        )}
 
-      {/* TMDB Rating */}
-      <div>
-        <div
-          style={{
-            fontFamily: BODY_FONT,
-            fontSize: 11,
-            color: C.muted,
-            marginBottom: 3,
-          }}
-        >
-          TMDB Rating
-        </div>
+        {/* =========================
+            MOVIE — MOBILE
+        ========================== */}
+        {isSmallScreen && (
+          <>
+            {/* Title / Duration */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                gap: 10,
+              }}
+            >
+              <div
+                style={{
+                  ...glassStyle(C),
+                  borderRadius: 14,
+                  padding: "12px 14px",
+                  minWidth: 0,
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 11,
+                    color: C.muted,
+                    marginBottom: 5,
+                  }}
+                >
+                  Title
+                </div>
 
-        <div
-          style={{
-            fontFamily: BODY_FONT,
-            fontSize: 13,
-            color: "#F5B942",
-            fontWeight: 700,
-          }}
-        >
-          {movie.rating ? `${movie.rating}/10` : "—"}
-        </div>
-      </div>
+                <div
+                  style={{
+                    fontFamily: DISPLAY_FONT,
+                    fontSize: 18,
+                    lineHeight: 1.2,
+                    fontWeight: 700,
+                    color: C.text,
+                    overflowWrap: "anywhere",
+                  }}
+                >
+                  {movie.title || "—"}
+                </div>
+              </div>
 
-      {/* Genre */}
-      <div>
-        <div
-          style={{
-            fontFamily: BODY_FONT,
-            fontSize: 11,
-            color: C.muted,
-            marginBottom: 3,
-          }}
-        >
-          Genre
-        </div>
+              <div
+                style={{
+                  ...glassStyle(C),
+                  borderRadius: 14,
+                  padding: "12px 14px",
+                  minWidth: 0,
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 11,
+                    color: C.muted,
+                    marginBottom: 5,
+                  }}
+                >
+                  Duration
+                </div>
 
-        <div
-          style={{
-            fontFamily: BODY_FONT,
-            fontSize: 13,
-            color: C.text,
-            fontWeight: 600,
-          }}
-        >
-          {movie.genres?.length
-            ? movie.genres.join(", ")
-            : "—"}
-        </div>
-      </div>
+                <div
+                  style={{
+                    fontFamily: DISPLAY_FONT,
+                    fontSize: 19,
+                    lineHeight: 1.2,
+                    fontWeight: 700,
+                    color: C.text,
+                  }}
+                >
+                  {movie.runtime || "—"}
+                </div>
+              </div>
 
-      {/* Release Date / First Air Date */}
-      <div>
-        <div
-          style={{
-            fontFamily: BODY_FONT,
-            fontSize: 11,
-            color: C.muted,
-            marginBottom: 3,
-          }}
-        >
-          {mediaType === "tv"
-            ? "First Air Date"
-            : "Release Date"}
-        </div>
+              <div
+                style={{
+                  ...glassStyle(C),
+                  borderRadius: 14,
+                  padding: "12px 14px",
+                  minWidth: 0,
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 11,
+                    color: C.muted,
+                    marginBottom: 5,
+                  }}
+                >
+                  Original language
+                </div>
 
-        <div
-          style={{
-            fontFamily: BODY_FONT,
-            fontSize: 13,
-            color: C.text,
-            fontWeight: 600,
-          }}
-        >
-          {movie.releaseDate || "—"}
-        </div>
-      </div>
+                <div
+                  style={{
+                    fontFamily: DISPLAY_FONT,
+                    fontSize: 17,
+                    lineHeight: 1.2,
+                    fontWeight: 700,
+                    color: C.text,
+                    overflowWrap: "anywhere",
+                  }}
+                >
+                  {originalLanguage || "—"}
+                </div>
+              </div>
 
-      {/* Country */}
-      <div>
-        <div
-          style={{
-            fontFamily: BODY_FONT,
-            fontSize: 11,
-            color: C.muted,
-            marginBottom: 3,
-          }}
-        >
-          Country
-        </div>
+              <div
+                style={{
+                  ...glassStyle(C),
+                  borderRadius: 14,
+                  padding: "12px 14px",
+                  minWidth: 0,
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 11,
+                    color: C.muted,
+                    marginBottom: 5,
+                  }}
+                >
+                  TMDB rating
+                </div>
 
-        <div
-          style={{
-            fontFamily: BODY_FONT,
-            fontSize: 13,
-            color: C.text,
-            fontWeight: 600,
-          }}
-        >
-          {movie.originCountries?.length
-            ? movie.originCountries.join(", ")
-            : "—"}
-        </div>
-      </div>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 5,
+                    fontFamily: DISPLAY_FONT,
+                    fontSize: 19,
+                    lineHeight: 1.2,
+                    fontWeight: 700,
+                    color: movie.rating ? "#F5B942" : C.text,
+                  }}
+                >
+                  {movie.rating && (
+                    <StarIcon
+                      size={16}
+                      fill="#F5B942"
+                      color="#F5B942"
+                    />
+                  )}
 
-      {/* Director — Movie */}
-      {mediaType !== "tv" && (
-        <div>
-          <div
-            style={{
-              fontFamily: BODY_FONT,
-              fontSize: 11,
-              color: C.muted,
-              marginBottom: 3,
-            }}
-          >
-            Director
-          </div>
+                  {movie.rating
+                    ? `${movie.rating}/10`
+                    : "—"}
+                </div>
+              </div>
+            </div>
 
-          <div
-            style={{
-              fontFamily: BODY_FONT,
-              fontSize: 13,
-              color: C.text,
-              fontWeight: 600,
-            }}
-          >
-            {movie.director?.length
-              ? movie.director.join(", ")
-              : "—"}
-          </div>
-        </div>
-      )}
+            {/* Type / Release date */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                gap: 10,
+                marginTop: 10,
+              }}
+            >
+              <div>
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 11,
+                    color: C.muted,
+                    marginBottom: 4,
+                  }}
+                >
+                  Type
+                </div>
 
-      {/* Creator — TV */}
-      {mediaType === "tv" && (
-        <div>
-          <div
-            style={{
-              fontFamily: BODY_FONT,
-              fontSize: 11,
-              color: C.muted,
-              marginBottom: 3,
-            }}
-          >
-            Creator
-          </div>
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 13,
+                    color: C.text,
+                    fontWeight: 600,
+                  }}
+                >
+                  Movie
+                </div>
+              </div>
 
-          <div
-            style={{
-              fontFamily: BODY_FONT,
-              fontSize: 13,
-              color: C.text,
-              fontWeight: 600,
-            }}
-          >
-            {movie.creator?.length
-              ? movie.creator.join(", ")
-              : "—"}
-          </div>
-        </div>
-      )}
+              <div>
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 11,
+                    color: C.muted,
+                    marginBottom: 4,
+                  }}
+                >
+                  Release date
+                </div>
 
-      {/* Music */}
-      <div>
-        <div
-          style={{
-            fontFamily: BODY_FONT,
-            fontSize: 11,
-            color: C.muted,
-            marginBottom: 3,
-          }}
-        >
-          Music
-        </div>
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 13,
+                    color: C.text,
+                    fontWeight: 600,
+                  }}
+                >
+                  {movie.releaseDate || "—"}
+                </div>
+              </div>
+            </div>
 
-        <div
-          style={{
-            fontFamily: BODY_FONT,
-            fontSize: 13,
-            color: C.text,
-            fontWeight: 600,
-          }}
-        >
-          {movie.music?.length
-            ? movie.music.join(", ")
-            : "—"}
-        </div>
-      </div>
+            {/* Dubbed / Country */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                gap: 10,
+                marginTop: 16,
+              }}
+            >
+              <div>
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 11,
+                    color: C.muted,
+                    marginBottom: 4,
+                  }}
+                >
+                  Dubbed language
+                </div>
 
-      {/* Cast */}
-      <div style={{ gridColumn: "1 / -1" }}>
-        <div
-          style={{
-            fontFamily: BODY_FONT,
-            fontSize: 11,
-            color: C.muted,
-            marginBottom: 3,
-          }}
-        >
-          Cast
-        </div>
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 13,
+                    color: C.text,
+                    fontWeight: 600,
+                    overflowWrap: "anywhere",
+                  }}
+                >
+                  {dubbedLanguages.length
+                    ? dubbedLanguages.join(", ")
+                    : "—"}
+                </div>
+              </div>
 
-        <div
-        loading="lazy"
-          style={{
-            fontFamily: BODY_FONT,
-            fontSize: 13,
-            color: C.text,
-            fontWeight: 600,
-          }}
-        >
-          {movie.cast?.length
-            ? movie.cast.map((person) => person.name).join(", ")
-            : "—"}
-        </div>
-      </div>
-    </div>
+              <div>
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 11,
+                    color: C.muted,
+                    marginBottom: 4,
+                  }}
+                >
+                  Country
+                </div>
+
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 13,
+                    color: C.text,
+                    fontWeight: 600,
+                    overflowWrap: "anywhere",
+                  }}
+                >
+                  {movie.originCountries?.length
+                    ? movie.originCountries.join(", ")
+                    : "—"}
+                </div>
+              </div>
+            </div>
+
+            {/* Director / Music */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                gap: 10,
+                marginTop: 16,
+              }}
+            >
+              <div>
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 11,
+                    color: C.muted,
+                    marginBottom: 4,
+                  }}
+                >
+                  Director
+                </div>
+
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 13,
+                    color: C.text,
+                    fontWeight: 600,
+                    overflowWrap: "anywhere",
+                  }}
+                >
+                  {movie.director?.length
+                    ? movie.director.join(", ")
+                    : "—"}
+                </div>
+              </div>
+
+              <div>
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 11,
+                    color: C.muted,
+                    marginBottom: 4,
+                  }}
+                >
+                  Music
+                </div>
+
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 13,
+                    color: C.text,
+                    fontWeight: 600,
+                    overflowWrap: "anywhere",
+                  }}
+                >
+                  {movie.music?.length
+                    ? movie.music.join(", ")
+                    : "—"}
+                </div>
+              </div>
+            </div>
+
+            {/* Divider ABOVE Genre */}
+            <div
+              style={{
+                height: 1,
+                background: C.glassBorder,
+                margin: "18px 0 14px",
+              }}
+            />
+
+            {/* Genre */}
+            <div>
+              <div
+                style={{
+                  fontFamily: BODY_FONT,
+                  fontSize: 11,
+                  color: C.muted,
+                  marginBottom: 6,
+                }}
+              >
+                Genre
+              </div>
+
+              <div
+                style={{
+                  fontFamily: BODY_FONT,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: C.text,
+                  lineHeight: 1.7,
+                }}
+              >
+                {movie.genres?.length
+                  ? movie.genres.join(", ")
+                  : "—"}
+              </div>
+            </div>
+
+            {/* Cast */}
+            <div style={{ marginTop: 14 }}>
+              <div
+                style={{
+                  fontFamily: BODY_FONT,
+                  fontSize: 11,
+                  color: C.muted,
+                  marginBottom: 6,
+                }}
+              >
+                Cast
+              </div>
+
+              <div
+                style={{
+                  fontFamily: BODY_FONT,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: C.text,
+                  lineHeight: 1.7,
+                }}
+              >
+                {movie.cast?.length
+                  ? movie.cast.map((person) => person.name).join(", ")
+                  : "—"}
+              </div>
+            </div>
+          </>
+        )}
+      </>
+    )}
+
+    {/* =====================================================
+        TV / SERIES INFORMATION
+        ===================================================== */}
+    {mediaType === "tv" && (
+      <>
+        {/* =========================
+            TV — DESKTOP
+        ========================== */}
+        {!isSmallScreen && (
+          <>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                gap: 12,
+              }}
+            >
+
+              {/* CARD 1 — OVERVIEW */}
+              <div
+                style={{
+                  ...glassStyle(C),
+                  borderRadius: 14,
+                  padding: "14px 16px",
+                  minWidth: 0,
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 13,
+                    color: C.muted,
+                    marginBottom: 10,
+                  }}
+                >
+                  Overview
+                </div>
+
+                {[
+                  ["Title", movie.title || "—"],
+
+                  [
+                    "Seasons",
+                    movie.seasons
+                      ? `${movie.seasons} ${
+                          movie.seasons === 1
+                            ? "season"
+                            : "seasons"
+                        }`
+                      : "—",
+                  ],
+
+                  [
+                    "Original language",
+                    originalLanguage || "—",
+                  ],
+
+                  [
+                    "TMDB rating",
+                    movie.rating
+                      ? `${movie.rating}/10`
+                      : "—",
+                  ],
+                ].map(([label, value], index, arr) => (
+                  <div
+                    key={label}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 16,
+                      padding: "8px 0",
+                      borderBottom:
+                        index < arr.length - 1
+                          ? `1px solid ${C.glassBorder}`
+                          : "none",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: BODY_FONT,
+                        fontSize: 12,
+                        color: C.muted,
+                      }}
+                    >
+                      {label}
+                    </span>
+
+                    <span
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap:
+                          label === "TMDB rating"
+                            ? 5
+                            : 0,
+                        fontFamily: BODY_FONT,
+                        fontSize: 13,
+                        color:
+                          label === "TMDB rating" &&
+                          movie.rating
+                            ? "#F5B942"
+                            : C.text,
+                        fontWeight: 600,
+                        textAlign: "right",
+                        overflowWrap: "anywhere",
+                      }}
+                    >
+                      {label === "TMDB rating" &&
+                        movie.rating && (
+                          <StarIcon
+                            size={14}
+                            fill="#F5B942"
+                            color="#F5B942"
+                          />
+                        )}
+
+                      {value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {/* CARD 2 — SERIES INFORMATION */}
+              <div
+                style={{
+                  ...glassStyle(C),
+                  borderRadius: 14,
+                  padding: "14px 16px",
+                  minWidth: 0,
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 13,
+                    color: C.muted,
+                    marginBottom: 10,
+                  }}
+                >
+                  Series Information
+                </div>
+
+                {[
+                  ["Type", "TV Show / Series"],
+
+                  [
+                    "First Air Date",
+                    movie.releaseDate || "—",
+                  ],
+
+                  [
+                    "Last Air Date",
+                    movie.lastAirDate || "—",
+                  ],
+
+                  [
+                    "Episodes / Duration",
+                    movie.episodes
+                      ? `${movie.episodes}${
+                          episodeRuntime
+                            ? ` / Avg. ${episodeRuntime} min`
+                            : ""
+                        }`
+                      : "—",
+                  ],
+                ].map(([label, value], index, arr) => (
+                  <div
+                    key={label}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 16,
+                      padding: "8px 0",
+                      borderBottom:
+                        index < arr.length - 1
+                          ? `1px solid ${C.glassBorder}`
+                          : "none",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: BODY_FONT,
+                        fontSize: 12,
+                        color: C.muted,
+                      }}
+                    >
+                      {label}
+                    </span>
+
+                    <span
+                      style={{
+                        fontFamily: BODY_FONT,
+                        fontSize: 13,
+                        color: C.text,
+                        fontWeight: 600,
+                        textAlign: "right",
+                        overflowWrap: "anywhere",
+                      }}
+                    >
+                      {value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {/* CARD 3 — CREDITS & LANGUAGE */}
+              <div
+                style={{
+                  ...glassStyle(C),
+                  borderRadius: 14,
+                  padding: "14px 16px",
+                  minWidth: 0,
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 13,
+                    color: C.muted,
+                    marginBottom: 10,
+                  }}
+                >
+                  Credits & Language
+                </div>
+
+                {[
+                  [
+                    "Dubbed language",
+                    dubbedLanguages.length
+                      ? dubbedLanguages.join(", ")
+                      : "—",
+                  ],
+
+                  [
+                    "Creator",
+                    movie.creator?.length
+                      ? movie.creator.join(", ")
+                      : "—",
+                  ],
+
+                  [
+                    "Music",
+                    movie.music?.length
+                      ? movie.music.join(", ")
+                      : "—",
+                  ],
+
+                  [
+                    "Country",
+                    movie.originCountries?.length
+                      ? movie.originCountries.join(", ")
+                      : "—",
+                  ],
+                ].map(([label, value], index, arr) => (
+                  <div
+                    key={label}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 16,
+                      padding: "8px 0",
+                      borderBottom:
+                        index < arr.length - 1
+                          ? `1px solid ${C.glassBorder}`
+                          : "none",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: BODY_FONT,
+                        fontSize: 12,
+                        color: C.muted,
+                      }}
+                    >
+                      {label}
+                    </span>
+
+                    <span
+                      style={{
+                        fontFamily: BODY_FONT,
+                        fontSize: 13,
+                        color: C.text,
+                        fontWeight: 600,
+                        textAlign: "right",
+                        overflowWrap: "anywhere",
+                      }}
+                    >
+                      {value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* GENRE + CAST */}
+            <div
+              style={{
+                ...glassStyle(C),
+                borderRadius: 14,
+                padding: "14px 16px",
+                marginTop: 12,
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: BODY_FONT,
+                  fontSize: 12,
+                  color: C.muted,
+                  marginBottom: 7,
+                }}
+              >
+                Genre
+              </div>
+
+              <div
+                style={{
+                  fontFamily: BODY_FONT,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: C.text,
+                  lineHeight: 1.7,
+                }}
+              >
+                {movie.genres?.length
+                  ? movie.genres.join(", ")
+                  : "—"}
+              </div>
+
+              <div
+                style={{
+                  fontFamily: BODY_FONT,
+                  fontSize: 12,
+                  color: C.muted,
+                  marginTop: 14,
+                  marginBottom: 7,
+                }}
+              >
+                Cast
+              </div>
+
+              <div
+                style={{
+                  fontFamily: BODY_FONT,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: C.text,
+                  lineHeight: 1.7,
+                }}
+              >
+                {movie.cast?.length
+                  ? movie.cast
+                      .map((person) => person.name)
+                      .join(", ")
+                  : "—"}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* =========================
+            TV — MOBILE
+        ========================== */}
+        {isSmallScreen && (
+          <>
+            {/* Title / Seasons */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns:
+                  "repeat(2, minmax(0, 1fr))",
+                gap: 10,
+              }}
+            >
+              {/* Title */}
+              <div
+                style={{
+                  ...glassStyle(C),
+                  borderRadius: 14,
+                  padding: "12px 14px",
+                  minWidth: 0,
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 11,
+                    color: C.muted,
+                    marginBottom: 5,
+                  }}
+                >
+                  Title
+                </div>
+
+                <div
+                  style={{
+                    fontFamily: DISPLAY_FONT,
+                    fontSize: 18,
+                    lineHeight: 1.2,
+                    fontWeight: 700,
+                    color: C.text,
+                    overflowWrap: "anywhere",
+                  }}
+                >
+                  {movie.title || "—"}
+                </div>
+              </div>
+
+              {/* Seasons */}
+              <div
+                style={{
+                  ...glassStyle(C),
+                  borderRadius: 14,
+                  padding: "12px 14px",
+                  minWidth: 0,
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 11,
+                    color: C.muted,
+                    marginBottom: 5,
+                  }}
+                >
+                  Seasons
+                </div>
+
+                <div
+                  style={{
+                    fontFamily: DISPLAY_FONT,
+                    fontSize: 19,
+                    lineHeight: 1.2,
+                    fontWeight: 700,
+                    color: C.text,
+                  }}
+                >
+                  {movie.seasons
+                    ? `${movie.seasons} ${
+                        movie.seasons === 1
+                          ? "season"
+                          : "seasons"
+                      }`
+                    : "—"}
+                </div>
+              </div>
+
+              {/* Original Language */}
+              <div
+                style={{
+                  ...glassStyle(C),
+                  borderRadius: 14,
+                  padding: "12px 14px",
+                  minWidth: 0,
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 11,
+                    color: C.muted,
+                    marginBottom: 5,
+                  }}
+                >
+                  Original language
+                </div>
+
+                <div
+                  style={{
+                    fontFamily: DISPLAY_FONT,
+                    fontSize: 17,
+                    lineHeight: 1.2,
+                    fontWeight: 700,
+                    color: C.text,
+                    overflowWrap: "anywhere",
+                  }}
+                >
+                  {originalLanguage || "—"}
+                </div>
+              </div>
+
+              {/* Rating */}
+              <div
+                style={{
+                  ...glassStyle(C),
+                  borderRadius: 14,
+                  padding: "12px 14px",
+                  minWidth: 0,
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 11,
+                    color: C.muted,
+                    marginBottom: 5,
+                  }}
+                >
+                  TMDB rating
+                </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 5,
+                    fontFamily: DISPLAY_FONT,
+                    fontSize: 19,
+                    lineHeight: 1.2,
+                    fontWeight: 700,
+                    color: movie.rating
+                      ? "#F5B942"
+                      : C.text,
+                  }}
+                >
+                  {movie.rating && (
+                    <StarIcon
+                      size={16}
+                      fill="#F5B942"
+                      color="#F5B942"
+                    />
+                  )}
+
+                  {movie.rating
+                    ? `${movie.rating}/10`
+                    : "—"}
+                </div>
+              </div>
+            </div>
+
+            {/* Episodes / Episode Duration */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns:
+                  "repeat(2, minmax(0, 1fr))",
+                gap: 10,
+                marginTop: 10,
+              }}
+            >
+              {/* Episodes */}
+              <div
+                style={{
+                  ...glassStyle(C),
+                  borderRadius: 14,
+                  padding: "12px 14px",
+                  minWidth: 0,
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 11,
+                    color: C.muted,
+                    marginBottom: 5,
+                  }}
+                >
+                  Episodes
+                </div>
+
+                <div
+                  style={{
+                    fontFamily: DISPLAY_FONT,
+                    fontSize: 19,
+                    lineHeight: 1.2,
+                    fontWeight: 700,
+                    color: C.text,
+                  }}
+                >
+                  {movie.episodes || "—"}
+                </div>
+              </div>
+
+              {/* Episode Duration */}
+              <div
+                style={{
+                  ...glassStyle(C),
+                  borderRadius: 14,
+                  padding: "12px 14px",
+                  minWidth: 0,
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 11,
+                    color: C.muted,
+                    marginBottom: 5,
+                  }}
+                >
+                  Episode Duration
+                </div>
+
+                <div
+                  style={{
+                    fontFamily: DISPLAY_FONT,
+                    fontSize: 19,
+                    lineHeight: 1.2,
+                    fontWeight: 700,
+                    color: C.text,
+                  }}
+                >
+                  {episodeRuntime
+                    ? `${episodeRuntime} min`
+                    : "—"}
+                </div>
+              </div>
+            </div>
+
+            {/* Type / Dubbed Language */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns:
+                  "repeat(2, minmax(0, 1fr))",
+                gap: 10,
+                marginTop: 16,
+              }}
+            >
+              <div style={{ minWidth: 0 }}>
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 11,
+                    color: C.muted,
+                    marginBottom: 4,
+                  }}
+                >
+                  Type
+                </div>
+
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 13,
+                    color: C.text,
+                    fontWeight: 600,
+                  }}
+                >
+                  TV Show / Series
+                </div>
+              </div>
+
+              <div style={{ minWidth: 0 }}>
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 11,
+                    color: C.muted,
+                    marginBottom: 4,
+                  }}
+                >
+                  Dubbed language
+                </div>
+
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 13,
+                    color: C.text,
+                    fontWeight: 600,
+                    overflowWrap: "anywhere",
+                  }}
+                >
+                  {dubbedLanguages.length
+                    ? dubbedLanguages.join(", ")
+                    : "—"}
+                </div>
+              </div>
+            </div>
+
+            {/* First / Last Air Date */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns:
+                  "repeat(2, minmax(0, 1fr))",
+                gap: 10,
+                marginTop: 16,
+              }}
+            >
+              <div style={{ minWidth: 0 }}>
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 11,
+                    color: C.muted,
+                    marginBottom: 4,
+                  }}
+                >
+                  First Air Date
+                </div>
+
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 13,
+                    color: C.text,
+                    fontWeight: 600,
+                  }}
+                >
+                  {movie.releaseDate || "—"}
+                </div>
+              </div>
+
+              <div style={{ minWidth: 0 }}>
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 11,
+                    color: C.muted,
+                    marginBottom: 4,
+                  }}
+                >
+                  Last Air Date
+                </div>
+
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 13,
+                    color: C.text,
+                    fontWeight: 600,
+                  }}
+                >
+                  {movie.lastAirDate || "—"}
+                </div>
+              </div>
+            </div>
+
+            {/* Creator / Music */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns:
+                  "repeat(2, minmax(0, 1fr))",
+                gap: 10,
+                marginTop: 16,
+              }}
+            >
+              <div style={{ minWidth: 0 }}>
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 11,
+                    color: C.muted,
+                    marginBottom: 4,
+                  }}
+                >
+                  Creator
+                </div>
+
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 13,
+                    color: C.text,
+                    fontWeight: 600,
+                    overflowWrap: "anywhere",
+                  }}
+                >
+                  {movie.creator?.length
+                    ? movie.creator.join(", ")
+                    : "—"}
+                </div>
+              </div>
+
+              <div style={{ minWidth: 0 }}>
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 11,
+                    color: C.muted,
+                    marginBottom: 4,
+                  }}
+                >
+                  Music
+                </div>
+
+                <div
+                  style={{
+                    fontFamily: BODY_FONT,
+                    fontSize: 13,
+                    color: C.text,
+                    fontWeight: 600,
+                    overflowWrap: "anywhere",
+                  }}
+                >
+                  {movie.music?.length
+                    ? movie.music.join(", ")
+                    : "—"}
+                </div>
+              </div>
+            </div>
+
+            {/* Divider ABOVE Genre */}
+            <div
+              style={{
+                height: 1,
+                background: C.glassBorder,
+                margin: "18px 0 14px",
+              }}
+            />
+
+            {/* Genre */}
+            <div>
+              <div
+                style={{
+                  fontFamily: BODY_FONT,
+                  fontSize: 11,
+                  color: C.muted,
+                  marginBottom: 6,
+                }}
+              >
+                Genre
+              </div>
+
+              <div
+                style={{
+                  fontFamily: BODY_FONT,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: C.text,
+                  lineHeight: 1.7,
+                }}
+              >
+                {movie.genres?.length
+                  ? movie.genres.join(", ")
+                  : "—"}
+              </div>
+            </div>
+
+            {/* Cast — NO divider */}
+            <div style={{ marginTop: 14 }}>
+              <div
+                style={{
+                  fontFamily: BODY_FONT,
+                  fontSize: 11,
+                  color: C.muted,
+                  marginBottom: 6,
+                }}
+              >
+                Cast
+              </div>
+
+              <div
+                style={{
+                  fontFamily: BODY_FONT,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: C.text,
+                  lineHeight: 1.7,
+                }}
+              >
+                {movie.cast?.length
+                  ? movie.cast
+                      .map((person) => person.name)
+                      .join(", ")
+                  : "—"}
+              </div>
+            </div>
+          </>
+        )}
+      </>
+    )}
   </div>
 </div>
 

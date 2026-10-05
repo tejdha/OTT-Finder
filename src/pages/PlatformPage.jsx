@@ -769,7 +769,7 @@ useEffect(() => {
           fontFamily: BODY_FONT,
           fontSize: 14,
           cursor: "pointer",
-          padding: "0 0 16px 0",
+          padding: "30px 0 20px 0",
         }}
       >
         &larr; Back

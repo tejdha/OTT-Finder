@@ -68,9 +68,21 @@ export default function RegionSelect({
           color: selected ? C.coralSolid : C.muted,
           whiteSpace: "nowrap",
           outline: "none",
+          width: "100%",
+          boxSizing: "border-box",
         }}
       >
-        {selectedCountryName || "Select country"}
+        <span
+  style={{
+    flex: 1,
+    minWidth: 0,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  }}
+>
+  {selectedCountryName || "Select country"}
+</span>
 
         <ChevronDown
           size={13}

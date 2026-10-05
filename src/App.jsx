@@ -61,7 +61,9 @@ function cleanIds(value) {
 }
 
 export default function App() {
-  const [theme, setTheme] = useState("dark");
+  const [theme, setTheme] = useState(() => {
+  return localStorage.getItem("theme") || "dark";
+});
   const C = THEMES[theme];
 
   useEffect(() => {
@@ -126,7 +128,13 @@ useEffect(() => {
   }
   };
 
-  const toggleTheme = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
+  const toggleTheme = () => {
+  setTheme((t) => {
+    const nextTheme = t === "dark" ? "light" : "dark";
+    localStorage.setItem("theme", nextTheme);
+    return nextTheme;
+  });
+};
   const toggleWishlist = (ref) =>
     setWishlist((prev) =>
       prev.some((w) => w.id === ref.id && w.mediaType === ref.mediaType)
@@ -168,7 +176,7 @@ useEffect(() => {
       )}
       <div style={{ background: C.bgGradient, minHeight: "100vh", fontFamily: BODY_FONT, transition: "background 0.3s ease" }}>
         <style>{`@import url('${FONT_IMPORT_URL}'); ${GLOBAL_CSS}`}</style>
-        <StickyNavigation C={C} theme={theme} onToggleTheme={toggleTheme} query={query} onQueryChange={setQuery}/>
+        <StickyNavigation C={C} theme={theme} onToggleTheme={toggleTheme} query={query} onQueryChange={setQuery} userCountry={userCountry} onManualCountry={updateUserCountry}/>
     
         <div style={{position: "relative", zIndex: 1, padding: "0 24px 80px" }}>
           <AppRoutes
@@ -203,7 +211,7 @@ useEffect(() => {
   );
 }
 
-function StickyNavigation({ C, theme, onToggleTheme, query, onQueryChange }) {
+function StickyNavigation({ C, theme, onToggleTheme, query, onQueryChange, userCountry, onManualCountry }) {
   const location = useLocation();
   const navRef = useRef(null);
 
@@ -249,7 +257,16 @@ function StickyNavigation({ C, theme, onToggleTheme, query, onQueryChange }) {
               pointerEvents: "none",
             }}
             />
-          <Header C={C} theme={theme} onToggleTheme={onToggleTheme} query={query} onQueryChange={onQueryChange} showSearch={showTabs}/>
+          <Header 
+            C={C}
+            theme={theme}
+            onToggleTheme={onToggleTheme} 
+            query={query} 
+            onQueryChange={onQueryChange} 
+            showSearch={showTabs}
+            userCountry={userCountry}
+            onManualCountry={onManualCountry}
+            />
         </div>        
 
         {showTabs && (
