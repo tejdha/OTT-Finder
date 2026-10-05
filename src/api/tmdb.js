@@ -1,12 +1,12 @@
 const BASE_URL = "https://api.themoviedb.org/3";
 const IMAGE_BASE = "https://image.tmdb.org/t/p";
 
-const TOKEN = import.meta.env.VITE_TMDB_TOKEN;
+const TOKEN = import.meta.env.TMDB_TOKEN;
 
 if (!TOKEN) {
   // Loud warning instead of a silent, confusing network failure.
   console.warn(
-    "VITE_TMDB_TOKEN is missing. Copy .env.example to .env and add your TMDB v4 Read Access Token."
+    "TMDB_TOKEN is missing. Copy .env.example to .env and add your TMDB v4 Read Access Token."
   );
 }
 
