@@ -1,6 +1,7 @@
 import React from "react";
 import { glassStyle, DISPLAY_FONT, BODY_FONT } from "../styles/theme";
 import { Sheen } from "../components/Primitives";
+import { useNavigate } from "react-router-dom";
 
 function SettingRow({ label, description, control, C }) {
   return (
@@ -15,8 +16,28 @@ function SettingRow({ label, description, control, C }) {
 }
 
 export default function SettingsPage({ C, theme, onToggleTheme }) {
+  const navigate = useNavigate();
   return (
-    <div style={{ maxWidth: 480, margin: "0 auto" }}>
+   
+    <div style={{ maxWidth: 480, margin: "30px auto" }}>
+      <button
+  onClick={() => navigate(-1)}
+  style={{
+    position: "relative",
+    marginBottom: 14,
+    padding: "8px 14px",
+    borderRadius: 999,
+    border: `1px solid ${C.glassBorder}`,
+    background: "transparent",
+    color: C.text,
+    fontFamily: BODY_FONT,
+    fontSize: 12,
+    fontWeight: 600,
+    cursor: "pointer",
+  }}
+>
+  ← Back
+</button>
       <h1 style={{ fontFamily: DISPLAY_FONT, fontWeight: 800, fontSize: 22, color: C.text, margin: "0 0 18px 0" }}>Settings</h1>
       <div style={{ ...glassStyle(C, { padding: "6px 20px", borderRadius: 18 }) }}>
         <Sheen C={C} />

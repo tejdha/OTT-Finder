@@ -10,6 +10,22 @@ export default function PlatformLogosRow({ C, watchRegion, ownedProviderIds }) {
   const navigate = useNavigate();
   const [providers, setProviders] = useState([]);
 
+  const [isMobile, setIsMobile] = useState(
+  () => window.innerWidth < 768
+);
+
+useEffect(() => {
+  const handleResize = () => {
+    setIsMobile(window.innerWidth < 768);
+  };
+
+  window.addEventListener("resize", handleResize);
+
+  return () => {
+    window.removeEventListener("resize", handleResize);
+  };
+}, []);
+
   useEffect(() => {
     let cancelled = false;
     getWatchProviderList("movie", watchRegion)
@@ -47,9 +63,9 @@ export default function PlatformLogosRow({ C, watchRegion, ownedProviderIds }) {
   if (providers.length === 0) return null;
 
   return (
-    <div style={{  marginBottom: 30 }}>
-      <h3 style={{  fontFamily: DISPLAY_FONT, fontWeight: 700, fontSize: 17, color: C.text, margin: "0 0 50px 0" }}>Browse by Platform</h3>
-      <div className="hide-scrollbar" style={{  display: "flex", justifyContent: "space-around", overflowX: "auto", paddingBottom: 6 }}>
+    <div style={{  marginBottom: isMobile? 16: 30 }}>
+      <h3 style={{  fontFamily: DISPLAY_FONT, fontWeight: 700, fontSize:isMobile ? 14 : 17, color: C.text, margin: isMobile ? "0 0 16px 0" : "0 0 50px 0" }}>Browse by Platform</h3>
+      <div className="hide-scrollbar" style={{  display: "flex", justifyContent: "space-around", overflowX: "auto", paddingBottom:isMobile ? 2 : 6 }}>
         {providers.map((p) => (
           <button
             key={p.id}
@@ -58,8 +74,8 @@ export default function PlatformLogosRow({ C, watchRegion, ownedProviderIds }) {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              gap: 8,
-              width : 90,
+              gap:isMobile ? 5 : 8,
+              width :isMobile ? 76: 90,
               flexShrink: 0,
               background: "none",
               border: "none",
@@ -69,7 +85,7 @@ export default function PlatformLogosRow({ C, watchRegion, ownedProviderIds }) {
             }}
           >
             {/* <Sheen C={C} /> */}
-            <div style={{ position: "relative" }}><ProviderIcon provider={p} C={C} size={53} /></div>
+            <div style={{ position: "relative" }}><ProviderIcon provider={p} C={C} size={isMobile ? 46 : 53} /></div>
             <span
               style={{
                 position: "relative",

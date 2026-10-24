@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { glassStyle, DISPLAY_FONT, BODY_FONT } from "../styles/theme";
 import { Sheen } from "../components/Primitives";
+import { useNavigate } from "react-router-dom";
+
 
 export default function FeedbackPage({ C }) {
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
   const [sent, setSent] = useState(false);
 
   const handleSubmit = (e) => {
@@ -12,9 +15,29 @@ export default function FeedbackPage({ C }) {
     setSent(true);
     setMessage("");
   };
+  
 
   return (
     <div style={{ maxWidth: 480, margin: "0 auto" }}>
+      <button
+        onClick={() => navigate(-1)}
+        style={{
+          position: "relative",
+          marginBottom: 14,
+          marginTop: 20,
+          padding: "8px 14px",
+          borderRadius: 999,
+          border: `1px solid ${C.glassBorder}`,
+          background: "transparent",
+          color: C.text,
+          fontFamily: BODY_FONT,
+          fontSize: 12,
+          fontWeight: 600,
+          cursor: "pointer",
+        }}
+      >
+        ← Back
+      </button>
       <h1 style={{ fontFamily: DISPLAY_FONT, fontWeight: 800, fontSize: 22, color: C.text, margin: "0 0 6px 0" }}>Send feedback</h1>
       <p style={{ fontFamily: BODY_FONT, fontSize: 13, color: C.muted, margin: "0 0 18px 0" }}>Tell us what's working or what's missing.</p>
       <form onSubmit={handleSubmit} style={{ ...glassStyle(C, { padding: 20, borderRadius: 16 }) }}>

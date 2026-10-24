@@ -1,6 +1,8 @@
 import React from "react";
 import { glassStyle, DISPLAY_FONT, BODY_FONT } from "../styles/theme";
 import { Sheen } from "../components/Primitives";
+import { useNavigate } from "react-router-dom";
+
 
 const FAQS = [
   { q: "Why can't I find a specific movie?", a: "Search covers The Movie Database (TMDB). Check the spelling or try the exact title. Very new or niche titles may not be listed yet." },
@@ -10,8 +12,29 @@ const FAQS = [
 ];
 
 export default function HelpPage({ C }) {
+  const navigate = useNavigate();
+
   return (
     <div style={{ maxWidth: 560, margin: "0 auto" }}>
+      <button
+        onClick={() => navigate(-1)}
+        style={{
+          position: "relative",
+          marginBottom: 14,
+          marginTop: 20,
+          padding: "8px 14px",
+          borderRadius: 999,
+          border: `1px solid ${C.glassBorder}`,
+          background: "transparent",
+          color: C.text,
+          fontFamily: BODY_FONT,
+          fontSize: 12,
+          fontWeight: 600,
+          cursor: "pointer",
+        }}
+      >
+  ← Back
+</button>
       <h1 style={{ fontFamily: DISPLAY_FONT, fontWeight: 800, fontSize: 22, color: C.text, margin: "0 0 18px 0" }}>Help &amp; FAQ</h1>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {FAQS.map((item) => (

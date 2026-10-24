@@ -123,6 +123,22 @@ export default function MovieDetailPage({ C, wishlist, onToggleWishlist, ownedPr
   () => window.innerWidth < 900
 );
 
+const [isMobile, setIsMobile] = useState(
+  () => window.innerWidth < 768
+);
+
+useEffect(() => {
+  const handleMobileResize = () => {
+    setIsMobile(window.innerWidth < 768);
+  };
+
+  window.addEventListener("resize", handleMobileResize);
+
+  return () => {
+    window.removeEventListener("resize", handleMobileResize);
+  };
+}, []);
+
 useEffect(() => {
   const handleResize = () => {
     setIsSmallScreen(window.innerWidth < 900);
@@ -430,10 +446,10 @@ const shownProviders = priceTabbedProviders();
     <div>
       <button onClick={() => navigate(-1)} style={{ background: "none", border: "none", color: C.muted, fontFamily: BODY_FONT, fontSize: 14, cursor: "pointer", padding: "0 0 20px 0" }}>&larr; Back</button>
 
-      <div style={{ borderRadius: 22, ...glassStyle(C, { padding: 0 }), display: "flex", flexWrap: "wrap" }}>
-        <div style={{ position: "relative", width: 230, flexShrink: 0, padding: 14 }}>
+      <div style={{ borderRadius: 22, ...glassStyle(C, { padding: 0 }), display: "flex", flexWrap: "nowrap", flexDirection: "row", alignItems: "stretch", }}>
+        <div style={{ position: "relative", width: isMobile? 145: 230, flexShrink: 0, padding: 14, display: "flex", justifyContent: "center", boxSizing: "border-box", }}>
           {movie.poster ? (
-            <img src={movie.poster} alt={movie.title} style={{ width: "100%", borderRadius: 14, boxShadow: "0 10px 24px rgba(0,0,0,0.35)", display: "block" }} />
+            <img src={movie.poster} alt={movie.title} style={{ width: isMobile ? 130: "100%",height: isMobile ? 168:"auto", borderRadius: 14, boxShadow: "0 10px 24px rgba(0,0,0,0.35)", display: "block" }} />
           ) : (
             <div style={{ width: "100%", aspectRatio: "2/3", borderRadius: 14, background: C.iconBg }} />
           )}
@@ -441,10 +457,10 @@ const shownProviders = priceTabbedProviders();
             <Heart size={15} color={wishlisted ? C.coralSolid : "#F2F2F5"} fill={wishlisted ? C.coralSolid : "none"} />
           </button>
         </div>
-        <div style={{ position: "relative", flex: "1 1 300px", minHeight: 240, borderRadius: "0 22px 22px 0", overflow: "hidden" }}>
+        <div style={{ position: "relative", flex: "1 1 300px", minWidth: 0, minHeight:isMobile ? 196: 240, borderRadius: isMobile ? "0 18px 18px 0": "0 22px 22px 0", overflow: "hidden" }}>
           {movie.backdrop && <img src={movie.backdrop} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", filter: "blur(6px)", transform: "scale(1.1)" }} />}
           <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.55)" }} />
-          <div style={{ position: "relative", padding: "24px 32px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", height: "100%", boxSizing: "border-box" }}>
+          <div style={{ position: "relative", padding: isMobile ? "14px 10px" : "24px 32px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", height: "100%", boxSizing: "border-box" }}>
             <div
               style={{
                 display: "flex",
@@ -458,7 +474,7 @@ const shownProviders = priceTabbedProviders();
                 style={{
                   fontFamily: DISPLAY_FONT,
                   fontWeight: 800,
-                  fontSize: 26,
+                  fontSize: isMobile ? 17 :26,
                   color: "#FFFFFF",
                   margin: 0,
                 }}
@@ -469,7 +485,7 @@ const shownProviders = priceTabbedProviders();
               <span
                 style={{
                   fontFamily: BODY_FONT,
-                  fontSize: 15,
+                  fontSize: isMobile? 12:15,
                   color: "rgba(255,255,255,0.75)",
                 }}
               >
@@ -479,9 +495,9 @@ const shownProviders = priceTabbedProviders();
             <div
   style={{
     fontFamily: BODY_FONT,
-    fontSize: 13,
+    fontSize:isMobile? 10 : 13,
     color: "rgba(255,255,255,0.8)",
-    marginTop: 8,
+    marginTop: isMobile ? 4 : 8,
   }}
 >
   {mediaType === "tv" ? "TV Show / Series" : "Movie"} :{" "}
@@ -496,27 +512,52 @@ const shownProviders = priceTabbedProviders();
             <div
               style={{
                 fontFamily: BODY_FONT,
-                fontSize: 13,
+                fontSize: isMobile ? 10 :  13,
                 color: "rgba(255,255,255,0.8)",
-                marginTop: 4,
+                marginTop: isMobile ? 2 : 4,
               }}
             >
               {originalLanguage}
             </div>
-            <div style={{ fontFamily: BODY_FONT, fontSize: 13, color: "rgba(255,255,255,0.8)", marginTop: 4 }}>{movie.genres.join(", ")}</div>
+            <div style={{ fontFamily: BODY_FONT, fontSize: isMobile ? 10: 13, color: "rgba(255,255,255,0.8)", marginTop:isMobile?2: 4 }}>{movie.genres.join(", ")}</div>
             <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 10 }}>
-              <StarIcon size={15} fill="#F5B942" color="#F5B942" />
-              <span style={{ fontFamily: BODY_FONT, fontSize: 14, fontWeight: 700, color: "#F5B942" }}>{movie.rating}/10 TMDB</span>
+              <StarIcon size={isMobile ? 12:15} fill="#F5B942" color="#F5B942" />
+              <span style={{ fontFamily: BODY_FONT, fontSize:isMobile ? 11 : 14, marginTop : isMobile?5:10, fontWeight: 700, color: "#F5B942" }}>{movie.rating}/10 TMDB</span>
             </div>
           </div>
         </div>
       </div>
 
       <div style={{ marginTop: 32, textAlign: "left" }}>
-        <h2 style={{ fontFamily: DISPLAY_FONT, fontWeight: 700, fontSize: 19, color: C.text, margin: "0 0 20px 0" }}>Where to watch</h2>
-        <div style={{marginBottom: 25}}>
-        <RegionSelect selectedCountryName={selectedAvailabilityCountry} onManualSelect={setSelectedAvailabilityCountry} C={C} />
-        </div>
+  
+      <div
+  style={{
+    display: "flex",
+    flexDirection: isMobile ? "row" : "column",
+    alignItems: isMobile ? "center" : "flex-start",
+    justifyContent: isMobile ? "space-between" : "flex-start",
+    gap: isMobile ? 0 : 12,
+    marginBottom: 16,
+  }}
+>
+  <h2
+    style={{
+      fontFamily: DISPLAY_FONT,
+      fontWeight: 700,
+      fontSize: 19,
+      color: C.text,
+      margin: 0,
+    }}
+  >
+    Where to watch
+  </h2>
+
+  <RegionSelect
+    selectedCountryName={selectedAvailabilityCountry}
+    onManualSelect={setSelectedAvailabilityCountry}
+    C={C}
+  />
+</div>
 
         {!availableInRegion ? (
           <div style={{ padding: "12px 16px", borderRadius: 14, ...glassStyle(C), border: `1px solid ${C.coralSolid}` }}>
@@ -527,7 +568,7 @@ const shownProviders = priceTabbedProviders();
           </div>
         ) : (
           <div>
-            <div style={{ display: "flex", gap: 6, marginBottom: 24, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: 6, marginBottom: 24, flexWrap: "wrap", justifyContent: isMobile ? "center" : "flex-start", }}>
               {[{ id: "all", label: "All" }, { id: "free", label: "Free" }, { id: "subscription", label: "Subscription" }, { id: "rent", label: "Rent" }].map((t) => {
                 const isSelected = priceTab === t.id;
                 return (
@@ -540,7 +581,7 @@ const shownProviders = priceTabbedProviders();
             {shownProviders.length === 0 ? (
               <div style={{ fontFamily: BODY_FONT, fontSize: 12, color: C.muted }}>No platforms offer this title that way right now.</div>
             ) : (
-              <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "flex-start" }}>
+              <div style={{ display: isMobile ? "grid" : "flex",gridTemplateColumns: isMobile ? "repeat(2, minmax(0,1fr))" : undefined, gap: 12, flexWrap:isMobile ? undefined : "wrap", justifyContent: isMobile ? undefined : "flex-start" }}>
                 {shownProviders.map(({ p, categories }) => (
               <ProviderPill
                 key={p.id}
@@ -916,6 +957,7 @@ const shownProviders = priceTabbedProviders();
                 display: "grid",
                 gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
                 gap: 10,
+                
               }}
             >
               <div
@@ -932,6 +974,7 @@ const shownProviders = priceTabbedProviders();
                     fontSize: 11,
                     color: C.muted,
                     marginBottom: 5,
+                    textAlign: "center",
                   }}
                 >
                   Title
@@ -944,6 +987,7 @@ const shownProviders = priceTabbedProviders();
                     lineHeight: 1.2,
                     fontWeight: 700,
                     color: C.text,
+                    textAlign: "center",
                     overflowWrap: "anywhere",
                   }}
                 >
@@ -965,6 +1009,7 @@ const shownProviders = priceTabbedProviders();
                     fontSize: 11,
                     color: C.muted,
                     marginBottom: 5,
+                    textAlign: "center",
                   }}
                 >
                   Duration
@@ -977,6 +1022,7 @@ const shownProviders = priceTabbedProviders();
                     lineHeight: 1.2,
                     fontWeight: 700,
                     color: C.text,
+                    textAlign: "center",
                   }}
                 >
                   {movie.runtime || "—"}
@@ -997,6 +1043,7 @@ const shownProviders = priceTabbedProviders();
                     fontSize: 11,
                     color: C.muted,
                     marginBottom: 5,
+                    textAlign: "center",
                   }}
                 >
                   Original language
@@ -1009,6 +1056,7 @@ const shownProviders = priceTabbedProviders();
                     lineHeight: 1.2,
                     fontWeight: 700,
                     color: C.text,
+                    textAlign: "center",
                     overflowWrap: "anywhere",
                   }}
                 >
@@ -1030,6 +1078,7 @@ const shownProviders = priceTabbedProviders();
                     fontSize: 11,
                     color: C.muted,
                     marginBottom: 5,
+                    textAlign: "center",
                   }}
                 >
                   TMDB rating
@@ -1039,6 +1088,7 @@ const shownProviders = priceTabbedProviders();
                   style={{
                     display: "flex",
                     alignItems: "center",
+                    justifyContent: "center",
                     gap: 5,
                     fontFamily: DISPLAY_FONT,
                     fontSize: 19,
@@ -1078,6 +1128,7 @@ const shownProviders = priceTabbedProviders();
                     fontSize: 11,
                     color: C.muted,
                     marginBottom: 4,
+                    textAlign: "center",
                   }}
                 >
                   Type
@@ -1089,6 +1140,7 @@ const shownProviders = priceTabbedProviders();
                     fontSize: 13,
                     color: C.text,
                     fontWeight: 600,
+                    textAlign: "center",
                   }}
                 >
                   Movie
@@ -1102,6 +1154,7 @@ const shownProviders = priceTabbedProviders();
                     fontSize: 11,
                     color: C.muted,
                     marginBottom: 4,
+                    textAlign: "center",
                   }}
                 >
                   Release date
@@ -1113,6 +1166,7 @@ const shownProviders = priceTabbedProviders();
                     fontSize: 13,
                     color: C.text,
                     fontWeight: 600,
+                    textAlign: "center",
                   }}
                 >
                   {movie.releaseDate || "—"}
@@ -1136,6 +1190,7 @@ const shownProviders = priceTabbedProviders();
                     fontSize: 11,
                     color: C.muted,
                     marginBottom: 4,
+                    textAlign: "center",
                   }}
                 >
                   Dubbed language
@@ -1147,6 +1202,7 @@ const shownProviders = priceTabbedProviders();
                     fontSize: 13,
                     color: C.text,
                     fontWeight: 600,
+                    textAlign: "center",
                     overflowWrap: "anywhere",
                   }}
                 >
@@ -1163,6 +1219,7 @@ const shownProviders = priceTabbedProviders();
                     fontSize: 11,
                     color: C.muted,
                     marginBottom: 4,
+                    textAlign: "center",
                   }}
                 >
                   Country
@@ -1174,6 +1231,7 @@ const shownProviders = priceTabbedProviders();
                     fontSize: 13,
                     color: C.text,
                     fontWeight: 600,
+                    textAlign: "center",
                     overflowWrap: "anywhere",
                   }}
                 >
@@ -1200,6 +1258,7 @@ const shownProviders = priceTabbedProviders();
                     fontSize: 11,
                     color: C.muted,
                     marginBottom: 4,
+                    textAlign: "center",
                   }}
                 >
                   Director
@@ -1211,6 +1270,7 @@ const shownProviders = priceTabbedProviders();
                     fontSize: 13,
                     color: C.text,
                     fontWeight: 600,
+                    textAlign: "center",
                     overflowWrap: "anywhere",
                   }}
                 >
@@ -1227,6 +1287,7 @@ const shownProviders = priceTabbedProviders();
                     fontSize: 11,
                     color: C.muted,
                     marginBottom: 4,
+                    textAlign: "center",
                   }}
                 >
                   Music
@@ -1238,6 +1299,7 @@ const shownProviders = priceTabbedProviders();
                     fontSize: 13,
                     color: C.text,
                     fontWeight: 600,
+                    textAlign: "center",
                     overflowWrap: "anywhere",
                   }}
                 >

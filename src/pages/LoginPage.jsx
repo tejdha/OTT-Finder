@@ -30,6 +30,26 @@ export default function LoginPage({ C, onLogin }) {
   };
 
   return (
+    <>
+    <button
+      onClick={() => navigate(-1)}
+      style={{
+        position: "relative",
+        marginTop: 20,
+        // marginBottom: 10,
+        padding: "8px 14px",
+        borderRadius: 999,
+        border: `1px solid ${C.glassBorder}`,
+        background: "transparent",
+        color: C.text,
+        fontFamily: BODY_FONT,
+        fontSize: 12,
+        fontWeight: 600,
+        cursor: "pointer",
+      }}
+    >
+      ← Back
+    </button>
     <div style={{ maxWidth: 380, margin: "60px auto", ...glassStyle(C, { padding: 28, borderRadius: 20 }) }}>
       <Sheen C={C} />
       <h1 style={{ position: "relative", fontFamily: DISPLAY_FONT, fontWeight: 800, fontSize: 24, color: C.text, margin: "0 0 6px 0" }}>Welcome back</h1>
@@ -45,5 +65,6 @@ export default function LoginPage({ C, onLogin }) {
         Don't have an account? <Link to="/signup" style={{ color: C.coralSolid, fontWeight: 600 }}>Sign up</Link>
       </p>
     </div>
+    </>
   );
 }

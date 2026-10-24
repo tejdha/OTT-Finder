@@ -8,9 +8,27 @@ export default function RegionSelect({
   selectedCountryName,
   onManualSelect,
   C,
+  mobileFixed = false,
 }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
+
+  const [isMobile, setIsMobile] = useState(
+  () => window.innerWidth < 768
+);
+
+useEffect(() => {
+  const handleResize = () => {
+    setIsMobile(window.innerWidth < 768);
+  };
+
+  window.addEventListener("resize", handleResize);
+
+  return () => {
+    window.removeEventListener("resize", handleResize);
+  };
+}, []);
+
   const ref = useRef(null);
   const searchRef = useRef(null);
 
@@ -112,13 +130,14 @@ export default function RegionSelect({
 
           <div
             style={{
-              position: "absolute",
-              top: "100%",
-              left: 0,
-              width: 210,
-              maxHeight: 300,
+              position:isMobile && mobileFixed ? "fixed" : "absolute",
+              top: isMobile &&mobileFixed ? 63 : "100%",
+              left: isMobile && mobileFixed ? "auto" : 0,
+              right: isMobile && mobileFixed ? 25 : "auto",
+              width: 150,
+              maxHeight: 250,
               borderRadius: 14,
-              zIndex: 100,
+              zIndex: 99999,
               background: C.glass,
               border: `1px solid ${C.glassBorder}`,
               boxShadow: "0 12px 30px rgba(0,0,0,0.25)",

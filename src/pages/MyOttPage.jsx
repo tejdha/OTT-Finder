@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Plus, MapPin, Languages, Cast, Music, RemoveFormattingIcon } from "lucide-react";
 import { glassStyle, DISPLAY_FONT, BODY_FONT } from "../styles/theme";
 import { getWatchProviderList } from "../api/tmdb";
@@ -29,7 +30,20 @@ function RegionBar({ userCountry, onManualCountry, onDetectLocation, locating,C 
 }
 
 export default function MyOttPage({ C, owned, onToggle, wishlist, onToggleWishlist, onDetectLocation, userCountry, onManualCountry, locating, watchRegion }) {
+  const navigate = useNavigate();
   const [managing, setManaging] = useState(owned.length === 0);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+  useEffect(() => {
+  const handleResize = () => {
+    setIsMobile(window.innerWidth < 768);
+  };
+
+  window.addEventListener("resize", handleResize);
+
+  return () => {
+    window.removeEventListener("resize", handleResize);
+  };
+}, []);
   const [allProviders, setAllProviders] = useState([]);
   const [loadingProviders, setLoadingProviders] = useState(true);
 
@@ -85,14 +99,14 @@ useEffect(() => {
           <div style={{ fontFamily: BODY_FONT, fontSize: 13, color: C.muted, textAlign: "center" }}>Loading platforms...</div>
         ) : (
           <>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: 12 }}>
+          <div style={{ display: "grid", gridTemplateColumns:isMobile ? "repeat(3, minmax(0, 1fr))" : "repeat(auto-fill, minmax(120px, 1fr))", gap: 12 }}>
             {orderedProviders.slice(0, visibleProviders).map((p) => {
               const isOwned = owned.includes(p.id);
               return (
                 <button
                   key={p.id}
                   onClick={() => onToggle(p.id)}
-                  style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, padding: "16px 10px", borderRadius: 16, cursor: "pointer", textAlign: "center", position: "relative", ...glassStyle(C), border: isOwned ? `2px solid ${C.coralSolid}` : `1px solid ${C.glassBorder}` }}
+                  style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, padding: isMobile ? "10px 8px" : "16px 10px", borderRadius: 16, cursor: "pointer", textAlign: "center", position: "relative", ...glassStyle(C), border: isOwned ? `2px solid ${C.coralSolid}` : `1px solid ${C.glassBorder}` }}
                 >
                   <Sheen C={C} />
                   <div style={{ position: "absolute", top: 8, right: 8, width: 20, height: 20, borderRadius: "50%", background: isOwned ? C.coral : "transparent", border: isOwned ? "none" : `2px solid ${C.iconBorder}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -175,7 +189,28 @@ useEffect(() => {
         </button>
       </div>
       {ownedProviderObjs.map((p) => (
-        <PlatformSection key={p.id} providerId={p.id} providerName={p.name} watchRegion={effectiveWatchRegion} C={C} wishlist={wishlist} onToggleWishlist={onToggleWishlist} ownedProviderIds={owned} />
+        <PlatformSection key={p.id} providerId={p.id} providerName={p.name} watchRegion={effectiveWatchRegion} C={C} wishlist={wishlist} onToggleWishlist={onToggleWishlist} ownedProviderIds={owned}
+         onSeeAll={(providerId, providerName, activeCat) =>
+        navigate("/see-all", {
+        state: {
+          source: "platform",
+          providerId,
+          providerName,
+          watchRegion: effectiveWatchRegion,
+          browsingCountry: effectiveCountry,
+          activeCat,
+          title: `${providerName} — ${
+            activeCat === "trending"
+              ? "Trending"
+              : activeCat === "latest"
+                ? "Latest"
+                : activeCat === "movies"
+                  ? "Movies"
+                  : "Series"
+          }`,
+        },
+      })
+    } />
       ))}
     </div>
   );

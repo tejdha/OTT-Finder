@@ -1,4 +1,6 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
+
 import { glassStyle, DISPLAY_FONT, BODY_FONT } from "../styles/theme";
 import { Sheen } from "../components/Primitives";
 
@@ -7,8 +9,30 @@ export default function AboutPage({ C }) {
   const small = { ...p, fontSize: 12, color: C.muted, lineHeight: 1.6 };
   const link = { color: C.coralSolid, textDecoration: "none", fontWeight: 600 };
   const ext = { target: "_blank", rel: "noopener noreferrer" };
+  const navigate = useNavigate();
 
   return (
+    <>
+    <button
+  onClick={() => navigate(-1)}
+  style={{
+    position: "relative",
+    left : 120,
+    marginBottom: 25,
+    marginTop: 20,
+    padding: "8px 14px",
+    borderRadius: 999,
+    border: `1px solid ${C.glassBorder}`,
+    background: "transparent",
+    color: C.text,
+    fontFamily: BODY_FONT,
+    fontSize: 12,
+    fontWeight: 600,
+    cursor: "pointer",
+  }}
+>
+  ← Back
+</button>
     <div style={{ maxWidth: 560, margin: "0 auto", ...glassStyle(C, { padding: 26, borderRadius: 18 }) }}>
       <Sheen C={C} />
       <h1 style={{ position: "relative", fontFamily: DISPLAY_FONT, fontWeight: 800, fontSize: 22, color: C.text, margin: "0 0 12px 0" }}>About Where To Watch</h1>
@@ -40,5 +64,6 @@ export default function AboutPage({ C }) {
         affiliated with, or endorsed by, any streaming service.
       </p>
     </div>
+  </>
   );
 }
