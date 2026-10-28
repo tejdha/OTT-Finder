@@ -31,26 +31,6 @@ export default function SignupPage({ C, onLogin }) {
   };
 
   return (
-    <>
-    <button
-  onClick={() => navigate(-1)}
-  style={{
-    position: "relative",
-    // marginBottom: 14,
-    marginTop: 20,
-    padding: "8px 14px",
-    borderRadius: 999,
-    border: `1px solid ${C.glassBorder}`,
-    background: "transparent",
-    color: C.text,
-    fontFamily: BODY_FONT,
-    fontSize: 12,
-    fontWeight: 600,
-    cursor: "pointer",
-  }}
->
-  ← Back
-</button>
     <div style={{ maxWidth: 380, margin: "60px auto", ...glassStyle(C, { padding: 28, borderRadius: 20 }) }}>
       <Sheen C={C} />
       <h1 style={{ position: "relative", fontFamily: DISPLAY_FONT, fontWeight: 800, fontSize: 24, color: C.text, margin: "0 0 6px 0" }}>Create your account</h1>
@@ -67,6 +47,5 @@ export default function SignupPage({ C, onLogin }) {
         Already have an account? <Link to="/login" style={{ color: C.coralSolid, fontWeight: 600 }}>Log in</Link>
       </p>
     </div>
-    </>
   );
 }

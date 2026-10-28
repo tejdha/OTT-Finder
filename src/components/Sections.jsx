@@ -5,140 +5,22 @@ import { adaptListResponse } from "../api/adapters";
 import { registerItems } from "../api/movieCache";
 import { PosterCard, ProviderIcon } from "./Cards";
 
-export function Row({
-  title,
-  items,
-  C,
-  wishlist,
-  onToggleWishlist,
-  ownedProviderIds,
-  onSeeAll,
-  loading,
-  browsingCountry,
-}) {
-  const [isMobile, setIsMobile] = useState(
-  () => window.innerWidth < 768
-);
-
-const [isDesktop, setIsDesktop] = useState(
-  () => window.innerWidth >= 1100
-);
-
-useEffect(() => {
-  const handleResize = () => {
-    setIsMobile(window.innerWidth < 768);
-    setIsDesktop(window.innerWidth >= 1100);
-  };
-
-  window.addEventListener("resize", handleResize);
-
-  return () => {
-    window.removeEventListener("resize", handleResize);
-  };
-}, []);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
-
+export function Row({ title, items, C, wishlist, onToggleWishlist, ownedProviderIds, onSeeAll, loading, browsingCountry }) {
+  
   if (!loading && items.length === 0) return null;
-
   return (
-    <div
-      style={{
-        marginBottom: isMobile ? 16 : 26,
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: isMobile ? 8 : 12,
-        }}
-      >
-        <h3
-          style={{
-            fontFamily: DISPLAY_FONT,
-            fontWeight: 700,
-            fontSize: isMobile ? 14 : 17,
-            color: C.text,
-            margin: 0,
-          }}
-        >
-          {title}
-        </h3>
-
-        {onSeeAll && !loading && (
-          <button
-            onClick={onSeeAll}
-            style={{
-              background: "none",
-              border: "none",
-              color: C.coralSolid,
-              fontFamily: BODY_FONT,
-              fontSize: isMobile ? 11 : 12,
-              fontWeight: 600,
-              cursor: "pointer",
-            }}
-          >
-            See all
-          </button>
-        )}
+    <div style={{ marginBottom: 26 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+        <h3 style={{ fontFamily: DISPLAY_FONT, fontWeight: 700, fontSize: 17, color: C.text, margin: 0 }}>{title}</h3>
+        {onSeeAll && !loading && <button onClick={onSeeAll} style={{ background: "none", border: "none", color: C.coralSolid, fontFamily: BODY_FONT, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>See all</button>}
       </div>
-
       {loading ? (
-        <div
-          style={{
-            fontFamily: BODY_FONT,
-            fontSize: 12,
-            color: C.muted,
-          }}
-        >
-          Loading...
-        </div>
+        <div style={{ fontFamily: BODY_FONT, fontSize: 12, color: C.muted }}>Loading...</div>
       ) : (
-        <div
-          className="hide-scrollbar"
-          style={{
-            display: "flex",
-            gap: isMobile ? 8 : 14,
-            overflowX: "auto",
-            paddingBottom: isMobile ? 4 : 6,
-          }}
-        >
+        <div className="hide-scrollbar" style={{ display: "flex", gap: 14, overflowX: "auto", paddingBottom: 6,}}>
           {items.slice(0, 20).map((m) => (
-            <div
-              key={`${m.tmdbMediaType}-${m.id}`}
-              style={{
-                flexShrink: 0,
-                width: isMobile
-                  ? "calc((100vw - 72px) / 3)"
-                  : isDesktop
-                  ? "calc((100% - 126px) / 10)"
-                  : 128,
-              }}
-            >
-              <PosterCard
-                movie={m}
-                C={C}
-                wishlisted={wishlist.some(
-                  (w) =>
-                    w.id === m.id &&
-                    w.mediaType === m.tmdbMediaType
-                )}
-                onToggleWishlist={onToggleWishlist}
-                ownedProviderIds={ownedProviderIds}
-                browsingCountry={browsingCountry}
-              />
+            <div key={`${m.tmdbMediaType}-${m.id}`} style={{ flexShrink: 0, width: 128 }}>
+              <PosterCard movie={m} C={C} wishlisted={wishlist.some((w) => w.id === m.id && w.mediaType === m.tmdbMediaType)} onToggleWishlist={onToggleWishlist} ownedProviderIds={ownedProviderIds} browsingCountry={browsingCountry} />
             </div>
           ))}
         </div>
@@ -153,26 +35,6 @@ export function PlatformSection({ providerId, providerName, watchRegion, browsin
   const [hovered, setHovered] = useState(null);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isMobile, setIsMobile] = useState(
-  () => window.innerWidth < 768
-);
-
-const [isDesktop, setIsDesktop] = useState(
-  () => window.innerWidth >= 1100
-);
-
-useEffect(() => {
-  const handleResize = () => {
-    setIsMobile(window.innerWidth < 768);
-    setIsDesktop(window.innerWidth >= 1100);
-  };
-
-  window.addEventListener("resize", handleResize);
-
-  return () => {
-    window.removeEventListener("resize", handleResize);
-  };
-}, []);
   const cats = [{ id: "trending", label: "Trending" }, { id: "latest", label: "Latest" }, { id: "movies", label: "Movies" }, { id: "series", label: "Series" }];
 
   useEffect(() => {
@@ -193,7 +55,7 @@ useEffect(() => {
   }, [providerId, watchRegion, activeCat]);
 
   return (
-    <div style={{ marginBottom:isMobile ? 5 : 30 }}>
+    <div style={{ marginBottom: 30 }}>
       <div
   style={{
     display: "flex",
@@ -270,9 +132,9 @@ useEffect(() => {
         <div style={{ fontFamily: BODY_FONT, fontSize: 12, color: C.muted }}>Nothing here yet.</div>
       ) : (
         <div>
-          <div className="hide-scrollbar" style={{ display: "flex", gap:isMobile ? 8: 14, overflowX: "auto", paddingBottom:isMobile? 4: 6,  }}>
+          <div className="hide-scrollbar" style={{ display: "flex", gap: 14, overflowX: "auto", paddingBottom: 6,  }}>
             {items.slice(0, 20).map((m) => (
-              <div key={`${m.tmdbMediaType}-${m.id}`} style={{ flexShrink: 0, width:isMobile ? "calc((100vw - 72px) / 3)" : isDesktop ? "calc((100% - 126px) / 10)" : 128}}>
+              <div key={`${m.tmdbMediaType}-${m.id}`} style={{ flexShrink: 0, width: 128 }}>
                 <PosterCard movie={m} C={C} wishlisted={wishlist.some((w) => w.id === m.id && w.mediaType === m.tmdbMediaType)} onToggleWishlist={onToggleWishlist} ownedProviderIds={ownedProviderIds} browsingCountry={browsingCountry}/>
               </div>
             ))}
@@ -294,21 +156,6 @@ export function GenreSection({ genreId, genreName, providerId, watchRegion, brow
   const [hovered, setHovered] = useState(null);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isMobile, setIsMobile] = useState(
-  () => window.innerWidth < 768
-);
-
-useEffect(() => {
-  const handleResize = () => {
-    setIsMobile(window.innerWidth < 768);
-  };
-
-  window.addEventListener("resize", handleResize);
-
-  return () => {
-    window.removeEventListener("resize", handleResize);
-  };
-}, []);
   const cats = [{ id: "movies", label: "Movies" }, { id: "series", label: "Series" }];
 
   useEffect(() => {
@@ -349,7 +196,7 @@ useEffect(() => {
   }, [genreId, providerId, watchRegion, activeCat]);
 
   return (
-    <div style={{ marginBottom: providerId && isMobile ? 16 : 30 }}>
+    <div style={{ marginBottom: 30 }}>
       <div
   style={{
     display: "flex",
@@ -388,7 +235,7 @@ useEffect(() => {
     </button>
   )}
 </div>
-      <div style={{ display: "flex", gap: 6, marginBottom: 5 }}>
+      <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
         {cats.map((c) => {
           const isSelected = activeCat === c.id;
           const isHovered = hovered === c.id && !isSelected;
@@ -406,9 +253,9 @@ useEffect(() => {
       ) : items.length === 0 ? (
         <div style={{ fontFamily: BODY_FONT, fontSize: 12, color: C.muted }}>Nothing here yet.</div>
       ) : (
-        <div className="hide-scrollbar" style={{ display: "flex", gap:providerId && isMobile ? 8 : 14, overflowX: "auto", paddingBottom:providerId && isMobile ? 4 : 6 }}>
+        <div className="hide-scrollbar" style={{ display: "flex", gap: 14, overflowX: "auto", paddingBottom: 6 }}>
           {items.slice(0, 20).map((m) => (
-            <div key={`${m.tmdbMediaType}-${m.id}`} style={{ flexShrink: 0, width:providerId && isMobile ? "calc((100vw - 72px) / 3)" : 128 }}>
+            <div key={`${m.tmdbMediaType}-${m.id}`} style={{ flexShrink: 0, width: 128 }}>
               <PosterCard movie={m} C={C} wishlisted={wishlist.some((w) => w.id === m.id && w.mediaType === m.tmdbMediaType)} onToggleWishlist={onToggleWishlist} ownedProviderIds={ownedProviderIds} browsingCountry={browsingCountry}/>
             </div>
           ))}

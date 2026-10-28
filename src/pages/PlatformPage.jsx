@@ -68,22 +68,6 @@ export default function PlatformPage({
   const [typeFilter, setTypeFilter] = useState([]);
   const [sortOption, setSortOption] = useState("none");
 
-  const [isMobile, setIsMobile] = useState(
-  () => window.innerWidth < 768
-);
-
-useEffect(() => {
-  const handleResize = () => {
-    setIsMobile(window.innerWidth < 768);
-  };
-
-  window.addEventListener("resize", handleResize);
-
-  return () => {
-    window.removeEventListener("resize", handleResize);
-  };
-}, []);
-
   const TYPE_TO_MEDIA = {
     Movie: "movie",
     "TV Show & Web Series": "tv",
@@ -971,10 +955,9 @@ useEffect(() => {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns:isMobile
-              ? "repeat(3, minmax(0, 1fr))"
-              : "repeat(auto-fill, minmax(150px, 1fr))",
-              gap:isMobile?8: 18,
+              gridTemplateColumns:
+                "repeat(auto-fill, minmax(150px, 1fr))",
+              gap: 18,
             }}
           >
             {filterResults.map((m) => (

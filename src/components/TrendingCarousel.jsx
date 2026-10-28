@@ -36,9 +36,9 @@ export default function TrendingCarousel({ movies, C }) {
       <h3 style={{ fontFamily: DISPLAY_FONT, fontWeight: 700, fontSize: 17, color: C.text, margin: "0 0 12px 0" }}>Latest Releases</h3>
       <div style={{ position: "relative", width: "100%", borderRadius: 20, ...glassStyle(C, { padding: 0, cursor: "pointer" }) }} onClick={() => navigate(`/title/${mediaType}/${movie.id}`)}>
         <Sheen C={C} />
-        <button onClick={(e) => { e.stopPropagation(); prev(); }} style={{ ...arrowStyle, left: 5 }}><ChevronLeft size={15} /></button>
-        <button onClick={(e) => { e.stopPropagation(); next(); }} style={{ ...arrowStyle, right: 5 }}><ChevronRight size={15} /></button>
-        <div style={{ position: "relative", width: "100%", aspectRatio: "21/9", minHeight: 0, overflow: "hidden", borderRadius: 20 }}>
+        <button onClick={(e) => { e.stopPropagation(); prev(); }} style={{ ...arrowStyle, left: 14 }}><ChevronLeft size={22} /></button>
+        <button onClick={(e) => { e.stopPropagation(); next(); }} style={{ ...arrowStyle, right: 14 }}><ChevronRight size={22} /></button>
+        <div style={{ position: "relative", width: "100%", aspectRatio: "21/9", minHeight: 220, overflow: "hidden", borderRadius: 20 }}>
           {movie.backdrop ? (
             <img src={movie.backdrop} alt={movie.title} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
           ) : (

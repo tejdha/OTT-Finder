@@ -22,11 +22,10 @@ import FeedbackPage from "./pages/FeedbackPage";
 import RegionOnboarding from "./components/RegionOnboarding";
 
 import NotFoundPage from "./pages/notfoundpage";
-import useScrollDirection from "./hooks/useScrollDirection";
-import SearchPage from "./pages/SearchPage";
+
 
 // Pages that show the Home/Wishlist/My OTT tab bar
-const TABBED_PATHS = ["/", "/search","/wishlist", "/my-ott","/dashboard","/login","/profile","/signup","/settings", "/about","/help","/feedback"];
+const TABBED_PATHS = ["/", "/wishlist", "/my-ott","/dashboard","/settings", "/about","/help","/feedback"];
 
 const STORAGE_VERSION = 1;
 
@@ -213,237 +212,74 @@ useEffect(() => {
   );
 }
 
-function StickyNavigation({
-  C,
-  theme,
-  onToggleTheme,
-  query,
-  onQueryChange,
-  userCountry,
-  onManualCountry,
-}) {
+function StickyNavigation({ C, theme, onToggleTheme, query, onQueryChange, userCountry, onManualCountry }) {
   const location = useLocation();
-
   const navRef = useRef(null);
 
-  const showTabs = TABBED_PATHS.includes(
-    location.pathname
-  );
+  const showTabs = TABBED_PATHS.includes(location.pathname);
 
-  const showHeaderSearch =
-  showTabs && location.pathname !== "/search";
+  useLayoutEffect(() => {
+    if (!navRef.current) return;
 
-  const [isMobile, setIsMobile] = useState(
-    () => window.innerWidth < 768
-  );
+    const updateHeight = () => {
+      const height = navRef.current.getBoundingClientRect().height;
 
-  const { direction, isAtTop } =
-    useScrollDirection();
-
-  /*
-   * MOBILE HEADER
-   *
-   * At top      -> visible
-   * Scroll down -> hidden
-   * Scroll up   -> visible
-   */
-  const mobileHeaderVisible =
-    isAtTop || direction === "up";
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(
-        window.innerWidth < 768
+      document.documentElement.style.setProperty(
+        "--sticky-nav-height",
+        `${height}px`
       );
     };
 
-    window.addEventListener(
-      "resize",
-      handleResize
-    );
+    updateHeight();
+
+    const resizeObserver = new ResizeObserver(updateHeight);
+    resizeObserver.observe(navRef.current);
 
     return () => {
-      window.removeEventListener(
-        "resize",
-        handleResize
-      );
+      resizeObserver.disconnect();
     };
-  }, []);
-
-  /*
-   ============================================================
-   MOBILE
-   ============================================================
-  */
-
-  if (isMobile) {
-    return (
-      <>
-        {/* MOBILE HEADER */}
-        <div
-          ref={navRef}
-          style={{
-            position: "sticky",
-
-            top: 0,
-
-            zIndex: 100,
-
-            width: "100%",
-
-            maxHeight:
-              mobileHeaderVisible
-                ? 220
-                : 0,
-
-            overflow: "hidden",
-
-            opacity:
-              mobileHeaderVisible
-                ? 1
-                : 0,
-
-            transition:
-              "max-height 0.25s ease, opacity 0.2s ease",
-          }}
-        >
-          <div
-            style={{
-              position: "relative",
-
-              zIndex: 2,
-
-              background:
-                "rgba(10, 10, 14, 0.35)",
-
-              padding:
-                "18px 12px 0",
-            }}
-          >
-            <div
-              style={{
-                position: "absolute",
-
-                inset: 0,
-
-                backdropFilter:
-                  "blur(12px)",
-
-                WebkitBackdropFilter:
-                  "blur(12px)",
-
-                pointerEvents: "none",
-              }}
-            />
-
-            <Header
-              C={C}
-              theme={theme}
-              onToggleTheme={
-                onToggleTheme
-              }
-              query={query}
-              onQueryChange={
-                onQueryChange
-              }
-              showSearch={showHeaderSearch}
-              userCountry={userCountry}
-              onManualCountry={
-                onManualCountry
-              }
-              mobileLayout={true}
-            />
-          </div>
-        </div>
-
-        {/* FIXED MOBILE TABS */}
-        {showTabs && <Tabs C={C} />}
-      </>
-    );
-  }
-
-  /*
-   ============================================================
-   TABLET + DESKTOP
-   KEEP EXISTING STRUCTURE
-   ============================================================
-  */
+  }, [showTabs, theme]);
 
   return (
-    <div
-      ref={navRef}
-      style={{
-        position: "sticky",
-        top: 0,
-        zIndex: 100,
-        background: "transparent",
-      }}
-    >
-      <div
-        style={{
+      <div ref={navRef} style={{position: "sticky", top : 0, zIndex: 100, background: "transparent", }}>
+        <div style={{
           position: "relative",
-
           zIndex: 2,
+          background: "rgba(10, 10, 14, 0.35)",
+          // backdropFilter: "blur(3px)",
+          // WebkitBackdropFilter: "blur(12px)",
+          padding: "24px 24px 0",}}>
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              backdropFilter: "blur(2px)",
+              WebkitBackdropFilter: "blur(12px)",
+              pointerEvents: "none",
+            }}
+            />
+          <Header 
+            C={C}
+            theme={theme}
+            onToggleTheme={onToggleTheme} 
+            query={query} 
+            onQueryChange={onQueryChange} 
+            showSearch={showTabs}
+            userCountry={userCountry}
+            onManualCountry={onManualCountry}
+            />
+        </div>        
 
-          background:
-            "rgba(10, 10, 14, 0.35)",
-
-          padding:
-            "24px 24px 0",
-        }}
-      >
-        <div
-          style={{
-            position: "absolute",
-
-            inset: 0,
-
-            backdropFilter:
-              "blur(2px)",
-
-            WebkitBackdropFilter:
-              "blur(12px)",
-
-            pointerEvents: "none",
-          }}
-        />
-
-        <Header
-          C={C}
-          theme={theme}
-          onToggleTheme={
-            onToggleTheme
-          }
-          query={query}
-          onQueryChange={
-            onQueryChange
-          }
-          showSearch={showHeaderSearch}
-          userCountry={userCountry}
-          onManualCountry={
-            onManualCountry
-          }
-          mobileLayout={false}
-        />
-      </div>
-
-      {showTabs && (
-        <div
-          style={{
+        {showTabs && (
+          <div style={{
             position: "relative",
-
             zIndex: 1,
-
-            background:
-              "transparent",
-
-            paddingTop: 2,
-          }}
-        >
-          <Tabs C={C} />
-        </div>
-      )}
-    </div>
+            background: "transparent",
+            paddingTop: 2,}}>
+            <Tabs C={C} />
+          </div>
+        )}
+      </div>
   );
 }
 
@@ -487,11 +323,10 @@ function AppRoutes(props){
   const {C, platformTabs, setPlatformTabs } = props;
 
   return (
-    <div style={{width: "98%" , maxWidth: "none", margin : "0 auto",}}>
+    <div style={{width: "95%" , maxWidth: "none", margin : "0 auto",}}>
 
       <Routes>
         <Route path="/" element={<HomePage C={C} wishlist={props.wishlist} onToggleWishlist={props.onToggleWishlist} ownedProviderIds={props.ownedProviderIds} userCountry={props.userCountry} watchRegion={props.watchRegion} query={props.query} onQueryChange={props.onQueryChange} platformTabs={platformTabs} setPlatformTabs={setPlatformTabs} homeCountry={props.homeCountry} onHomeCountryChange={props.onHomeCountryChange}/>} />
-        <Route path="/search"element={<SearchPage C={C} wishlist={props.wishlist} onToggleWishlist={props.onToggleWishlist} ownedProviderIds={props.ownedProviderIds} homeCountry={props.homeCountry} onHomeCountryChange={props.onHomeCountryChange} query={props.query} onQueryChange={props.onQueryChange} />}/>
         <Route path="/wishlist" element={<WishlistPage C={C} wishlist={props.wishlist} onToggleWishlist={props.onToggleWishlist} ownedProviderIds={props.ownedProviderIds} watchRegion={props.watchRegion} />} />
         <Route path="/my-ott" element={<MyOttPage C={C} owned={props.ownedProviderIds} onToggle={props.onToggleOwnedProvider} wishlist={props.wishlist} onToggleWishlist={props.onToggleWishlist} onDetectLocation={props.onDetectLocation} userCountry={props.userCountry} onManualCountry={props.onManualCountry} locating={props.locating} watchRegion={props.watchRegion} />} />
         <Route path="/title/:mediaType/:id" element={<MovieDetailPage C={C} wishlist={props.wishlist} onToggleWishlist={props.onToggleWishlist} ownedProviderIds={props.ownedProviderIds} userCountry={props.userCountry} onManualCountry={props.onManualCountry} />} />

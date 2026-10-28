@@ -201,22 +201,6 @@ useEffect(() => {
   const [searchPanelTop, setSearchPanelTop] = useState(0);
   const [searchControlsHidden, setSearchControlsHidden] = useState(false);
 
-  const [isMobile, setIsMobile] = useState(
-  () => window.innerWidth < 768
-);
-
-useEffect(() => {
-  const handleResize = () => {
-    setIsMobile(window.innerWidth < 768);
-  };
-
-  window.addEventListener("resize", handleResize);
-
-  return () => {
-    window.removeEventListener("resize", handleResize);
-  };
-}, []);
-
   // --------------------------------------------------
   // FILTER TOGGLES
   // --------------------------------------------------
@@ -911,7 +895,6 @@ const genreIds = genreIdsArray.join(",");
       {/* SEARCH + FILTERS */}
       {/* --------------------------------------------- */}
 
-    {!isMobile && (
       <div
         id="home-search-section"
         ref={searchSectionRef}
@@ -930,7 +913,7 @@ const genreIds = genreIdsArray.join(",");
             style={{
               color: C.muted,
               fontSize: 13,
-              margin: "15px 0 20px",
+              margin: "0 0 20px",
             }}
           >
             Search a movie. Find out exactly where
@@ -1015,13 +998,12 @@ const genreIds = genreIdsArray.join(",");
           />
         </div>
       </div>
-      )}
 
       {/* --------------------------------------------- */}
       {/* SEARCH / FILTER RESULTS PANEL */}
       {/* --------------------------------------------- */}
 
-      {!isMobile && (isSearchMode || isFilterMode) && (
+      {(isSearchMode || isFilterMode) && (
         <div
         id="home-results-panel"
           style={{
@@ -1249,7 +1231,6 @@ const genreIds = genreIdsArray.join(",");
           onToggleWishlist={onToggleWishlist}
           ownedProviderIds={ownedProviderIds}
           browsingCountry={homeCountry}
-          isMobile={isMobile}
           onSeeAll={() =>
             navigate("/see-all", {
               state: {
@@ -1271,7 +1252,6 @@ const genreIds = genreIdsArray.join(",");
         onToggleWishlist={onToggleWishlist}
         ownedProviderIds={ownedProviderIds}
         browsingCountry={homeCountry}
-        isMobile={isMobile}
         onSeeAll={()=>
           navigate("/see-all",{
             state: {
@@ -1293,7 +1273,6 @@ const genreIds = genreIdsArray.join(",");
           onToggleWishlist={onToggleWishlist}
           ownedProviderIds={ownedProviderIds}
           browsingCountry={homeCountry}
-          isMobile={isMobile}
         />
 
         <Row
@@ -1305,7 +1284,6 @@ const genreIds = genreIdsArray.join(",");
           onToggleWishlist={onToggleWishlist}
           ownedProviderIds={ownedProviderIds}
           browsingCountry={homeCountry}
-          isMobile={isMobile}
         />
 
         <Row 
@@ -1317,7 +1295,6 @@ const genreIds = genreIdsArray.join(",");
           onToggleWishlist={onToggleWishlist}
           ownedProviderIds={ownedProviderIds}
           browsingCountry={homeCountry}
-          isMobile={isMobile}
           onSeeAll={()=>
             navigate("/see-all",{
               state: {
@@ -1340,7 +1317,6 @@ const genreIds = genreIdsArray.join(",");
           onToggleWishlist={onToggleWishlist}
           ownedProviderIds={ownedProviderIds}
           browsingCountry={homeCountry}
-          isMobile={isMobile}
           onSeeAll={() =>
             navigate("/see-all", {
               state: {
@@ -1362,7 +1338,6 @@ const genreIds = genreIdsArray.join(",");
           onToggleWishlist={onToggleWishlist}
           ownedProviderIds={ownedProviderIds}
           browsingCountry={homeCountry}
-          isMobile={isMobile}
           onSeeAll={() =>
             navigate("/see-all", {
               state: {
@@ -1384,7 +1359,6 @@ const genreIds = genreIdsArray.join(",");
         onToggleWishlist={onToggleWishlist}
         ownedProviderIds={ownedProviderIds}
         browsingCountry={homeCountry}
-        isMobile={isMobile}
         onSeeAll={()=>
           navigate("/see-all",{
             state: {
@@ -1409,7 +1383,6 @@ const genreIds = genreIdsArray.join(",");
             onToggleWishlist={onToggleWishlist}
             ownedProviderIds={ownedProviderIds}
             browsingCountry={homeCountry}
-            isMobile={isMobile}
 
             initialCat={platformTabs[p.id] || "trending"}
 

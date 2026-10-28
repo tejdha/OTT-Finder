@@ -6,7 +6,6 @@ export default function useScrollDirection() {
 
   const lastScrollY = useRef(0);
   const accumulatedDelta = useRef(0);
-  const lastDirectionChange = useRef(0);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -15,7 +14,6 @@ export default function useScrollDirection() {
 
       setIsAtTop(currentScrollY <= 10);
 
-      // Always show the normal header state at the very top
       if (currentScrollY <= 10) {
         setDirection("up");
         accumulatedDelta.current = 0;
@@ -25,27 +23,19 @@ export default function useScrollDirection() {
 
       accumulatedDelta.current += delta;
 
-      // Require a meaningful scroll before changing direction
-      if (Math.abs(accumulatedDelta.current) < 25) {
+      // Ignore tiny direction changes
+      if (Math.abs(accumulatedDelta.current) < 12) {
         lastScrollY.current = currentScrollY;
         return;
       }
 
-      // Prevent rapid direction flipping
-      const now = Date.now();
-
-      if (now - lastDirectionChange.current < 180) {
-        lastScrollY.current = currentScrollY;
-        return;
+      if (accumulatedDelta.current > 0) {
+        setDirection("down");
+      } else {
+        setDirection("up");
       }
-
-      const nextDirection =
-        accumulatedDelta.current > 0 ? "down" : "up";
-
-      setDirection(nextDirection);
 
       accumulatedDelta.current = 0;
-      lastDirectionChange.current = now;
       lastScrollY.current = currentScrollY;
     };
 
